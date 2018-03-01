@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Twitter Demetricator Options</title>
+    <script src="jquery.min.js"></script> 
+    <script src="options.js"></script> 
+    <style>
+        body {
+          font-family:"Open Sans", "Helvetica", "Arial", sans-serif;
+          background-color:#edf0f5;
+          background-color:  ##e1edf4;
+          background-color:  #F5F8FA;
+          background-color:  #E1E8ED;
+          background-color:  #F5F8FA;
+          }
+        h1 {
+          color:   #14171A;
+        }
+        h2 {
+          font-style:italic;
+          font-size:90%;
+          margin-top:-15px;
+          margin-bottom:30px;
+				  color:#3b5998;
+          color:  #1DA1F2;
+          color: #1DA1F2;
+        }
+        h3 {
+          margin-bottom:10px;
+          color:  #657786;
+        }
+        #container {
+          margin:0px 20px 20px;
+          width:260px;
+				  overflow:scroll;
+        }
+        #submit {
+          margin-top:10px;
+          background-color:#69a74e;
+				  background-color:#3b5998;
+          color:white;
+          font-size:100%;
+          border-radius:10px;
+          -moz-border-radius:10px;
+          -webkit-border-radius:10px;
+          padding:5px 15px;
+            float:left;
+              outline:none;
+        }
+        input[type=checkbox] {
+          vertical-align:middle;
+          /*border:1px solid red;*/
+            margin:2px 5px 5px 0;
+        }
+        #status {
+          float:left;
+            padding:15px 15px;
+				  color:#3b5998;
+        }
+
+        #footer {
+          margin-top:30px;
+          margin-top:10px;
+
+          color:#888;
+            color:  #AAB8C2;
+          color:  #657786;
+            font-size:90%;
+        }
+
+        a { outline:none; 
+            }
+
+/* switch */
+.onoffswitch {
+    position: relative; width: 70px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+float:left;
+}
+.onoffswitch-checkbox {
+    display: none;
+}
+.onoffswitch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    border: 2px solid #999999; border-radius: 11px;
+}
+.onoffswitch-inner {
+    display: block; width: 200%; margin-left: -100%;
+    transition: margin 0.08s ease-in 0s;
+}
+.onoffswitch-inner:before, .onoffswitch-inner:after {
+    display: block; float: left; width: 50%; height: 26px; padding: 0; line-height: 26px;
+    font-size: 12px; color: white; 
+    box-sizing: border-box;
+}
+.onoffswitch-inner:before {
+    content: "Yes";
+    padding-left: 10px;
+    background-color: #69A74E; color: #FFFFFF;
+}
+.onoffswitch-inner:after {
+    content: "No";
+    padding-right: 10px;
+    background-color: #EEEEEE; color: #999999;
+    text-align: right;
+}
+.onoffswitch-switch {
+    display: block; width: 11px; margin: 7.5px;
+    background: #FFFFFF;
+    position: absolute; top: 0; bottom: 0;
+    right: 40px;
+    border: 2px solid #999999; border-radius: 11px;
+    transition: all 0.08s ease-in 0s; 
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 0px; 
+}
+.clear { clear:both; }
+.kb { font-size: 90%; }
+
+#togglemsg { color:red;display:none; }
+
+    </style>
+    
+  </head>
+  <body>
+    <div id="container">
+
+    <h1>Twitter Demetricator</h1>
+    <h2>Hides all the metrics on Twitter</h2>
+
+    <h3>Hide the Metrics?</h3>
+<div class="onoffswitch" style="margin-bottom:20px;">
+    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" checked>
+    <label class="onoffswitch-label" for="myonoffswitch">
+        <span class="onoffswitch-inner"></span>
+        <span class="onoffswitch-switch"></span>
+    </label>
+</div>
+<div class="clear"></div>
+<!--
+<span class="kb">Keyboard shortcut: ctrl-d</span>
+-->
+
+<div class="clear"></div>
+
+    <div id="footer">
+      <a class="tdlnk" href="http://bengrosser.com/projects/twitter-demetricator">Twitter Demetricator</a> is created by <a class="bglnk" href="http://bengrosser.com">Ben Grosser</a>. You might also be interested in <a class="fbdlnk" href="http://bengrosser.com/projects/facebook-demetricator/">Facebook Demetricator</a><br/>
+    </div>
+
+    </div>
+  </body>
+</html>

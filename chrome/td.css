@@ -1,0 +1,32 @@
+/* twitter demetricator */
+/* pre-load CSS */
+/* mirrored in userscript demetricatedStyle */
+
+.ProfileCardStats-statValue, 
+.ProfileTweet-actionCountForPresentation, 
+.ProfileNav-value, 
+a[data-tweet-stat-count] strong, 
+.ep-MetricAnimation,
+.ep-MetricValue,
+.MomentCapsuleLikesFacepile-countNum
+{ 
+  opacity:0; 
+} 
+
+.count-wrap
+{
+    display:none;
+}
+
+/* tweetdeck specific */
+span.js-ticker-value,
+.prf-stats li a strong
+{
+  opacity:0;
+}
+
+/* tweetdeck vids on twitter/i/videos/* */
+#playerContainer .view-counts-display {
+    /*display:none;*/
+    opacity:0;
+}
