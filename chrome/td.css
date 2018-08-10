@@ -7,7 +7,8 @@
 .ProfileNav-value, 
 a[data-tweet-stat-count] strong, 
 .ep-MetricAnimation,
-.ep-MetricValue,
+.ep-MetricValue, 
+.stats li a strong,
 .MomentCapsuleLikesFacepile-countNum
 { 
   opacity:0; 
@@ -20,7 +21,8 @@ a[data-tweet-stat-count] strong,
 
 /* tweetdeck specific */
 span.js-ticker-value,
-.prf-stats li a strong
+.prf-stats li a strong,
+.like-count, .retweet-count, .reply-count
 {
   opacity:0;
 }

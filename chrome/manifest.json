@@ -35,6 +35,7 @@
                 "*://platform.twitter.com/widgets/*",
                 "*://analytics.twitter.com/*"
                                 ],
+            "run_at": "document_start",
 			"css": ["td.css"],
             "js": ["td.user.js"]
         }

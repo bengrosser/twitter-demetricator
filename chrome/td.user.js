@@ -110,17 +110,17 @@
     // a few metrics are easy, hidden via CSS. this style is mirrored in 
     // twitterdemetricator.css in order to inject *before* DOM renders on
     // first load, so need to maintain state in these vars plus that file
-    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum { opacity:0; } .count-wrap { display:hide; }'; 
+    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; }'; 
 
-    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum { opacity:1; } .count-wrap { display:unset; }';
+    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; }';
 
-    var tweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong { opacity:0; }';
+    var tweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong, .like-count, .retweet-count, .reply-count { opacity:0 !important; }';
 
-    var inverseTweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong { opacity:1; }';
+    var inverseTweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong, .like-count, .retweet-count, .reply-count { opacity:1 !important; }';
 
-    var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:0; }'; 
+    var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:0 !important; }'; 
 
-    var inverseTweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:1; }'; 
+    var inverseTweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:1 !important; }'; 
 
 
     function toggleDemetricator() {
@@ -325,6 +325,7 @@
     function main() {
 
         if(IS_CHROME_EXTENSION) {
+            addGlobalStyle(demetricatedStyle,"demetricator");
             // listen for messages from the extension control popup, 
             // adjust as directed
             chrome.runtime.onMessage.addListener(
@@ -379,7 +380,6 @@
         console.log("Twitter Demetricator, ver. "+version+" -- by Ben Grosser");
         console.log("https://bengrosser.com/projects/twitter-demetricator/");
         console.log(" ... loaded for URL --> "+window.location);
-
 
         // if we don't want it on then undo the demetrication style
         if(!demetricated) 
@@ -953,12 +953,15 @@
 
     // originally from https://gist.github.com/Geruhn/7644599
     function addGlobalStyle(css,idname) {
+        //console.log("aGS, css: "+css+", id: "+idname);
+        
         var head, style;
         head = document.getElementsByTagName('head')[0];
         if (!head) { return; }
         style = document.createElement('style');
         style.type = 'text/css';
-        style.innerHTML = css;
+        style.appendChild(document.createTextNode(css));
+        //style.innerHTML = css;
         style.setAttribute("id",idname);
         head.appendChild(style);
     }
