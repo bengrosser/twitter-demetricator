@@ -9,7 +9,7 @@ The Twitter interface is filled with numbers. These numbers, or metrics, measure
 
 ### Supported Browsers
 
-Twitter Demetricator is released as a Chrome extension and as a userscript for use with Tampermonkey in Firefox, Safari, Edge, and Opera. Other browsers may be supported if they support userscripts in some way, but have not been tested.
+Twitter Demetricator is released as a Chrome extension and a Firefox Add-on, and as a userscript for use with Tampermonkey in any browser (including Safari, Edge, and Opera). Other browsers may be supported if they support userscripts in some way, but have not been tested.
 
 ### Options
 
@@ -18,6 +18,7 @@ Both browser implementations include an option to toggle the metric hiding. In C
 ### Files
 
 * chrome/\* source for the Chrome extension
+* firefox/\* source for the Firefox addon 
 * twitter-demetricator.user.js for the raw userscript
 * twitter-demetricator.meta.js is used on my server for update notifications
 
