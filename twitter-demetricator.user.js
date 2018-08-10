@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.0.1
+// @version     1.0.2
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
@@ -95,7 +95,7 @@
     var demetricated = true;            // launch in demetricated state
     var demetricating = false;            // launch in demetricated state
     var curURL = window.location.href;  
-    var version = "1.0.1";
+    var version = "1.0.2";
 
     // variables to hold language-specific text for the new tweets
     // bar and the new notifications bar. this way I can reconstruct
@@ -104,23 +104,23 @@
     var tweetBarTextTemplate;   
     var notificationBarTextDemetricated;
     var notificationBarTextTemplate;
+    var resultsBarTextDemetricated;
+    var resultsBarTextTemplate;
 
     // a few metrics are easy, hidden via CSS. this style is mirrored in 
     // twitterdemetricator.css in order to inject *before* DOM renders on
     // first load, so need to maintain state in these vars plus that file
-    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum { opacity:0; } .count-wrap { display:hide; }'; 
+    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; }'; 
 
-    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum { opacity:1; } .count-wrap { display:unset; }';
+    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; }';
 
-    var tweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong { opacity:0; }';
+    var tweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong, .like-count, .retweet-count, .reply-count { opacity:0 !important; }';
 
-    var inverseTweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong { opacity:1; }';
+    var inverseTweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong, .like-count, .retweet-count, .reply-count { opacity:1 !important; }';
 
-    var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:0; }'; 
+    var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:0 !important; }'; 
 
-    var inverseTweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:1; }'; 
-
-
+    var inverseTweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:1 !important; }'; 
 
 
     function toggleDemetricator() {
@@ -152,23 +152,11 @@
 
                 var newNotificationsCount = 
                   $('body.NotificationsPage button.new-tweets-bar').
-                  attr('data-item-count');
+                    attr('data-item-count');
 
                 // new notifications bar
                 if(newNotificationsCount != undefined &&
                    notificationBarTextTemplate != undefined) {
-                    //var notificationText = "notifications";
-
-
-                    // remove 1.0
-                    /*
-                    if(newNotificationsCount == "1") 
-                        notificationText = "notification"; 
-
-                    $('body.NotificationsPage button.new-tweets-bar').
-                        text("See "+newNotificationsCount+
-                             " new "+notificationText);
-                             */
 
                     var reconstructedNotificationsBarText = 
                         notificationBarTextTemplate.
@@ -184,6 +172,31 @@
                     }
                 } 
             } 
+
+
+            else if($('body.AdaptiveSearchPage').length > 0) {
+                var newResultsCount = 
+                  $('body.AdaptiveSearchPage button.new-tweets-bar').
+                    attr('data-item-count');
+
+                // new notifications bar
+                if(newResultsCount != undefined &&
+                   resultsBarTextTemplate != undefined) {
+
+                    var reconstructedResultsBarText = 
+                        resultsBarTextTemplate.
+                        replace('XXX',newResultsCount);
+
+                    $('body.AdaptiveSearchPage button.new-tweets-bar').
+                        text(reconstructedResultsBarText);
+
+                    if(newResultsCount != "0") {
+                        var oldtitle = $('title').text();
+                        $('title').
+                            text("("+newResultsCount+") "+oldtitle);
+                    }
+                } 
+            }
         
             // everything else handles tab title and 
             // new tweets bar differently
@@ -191,32 +204,11 @@
             
             // new tweets bar(s) and title bar
                 var newTweetsCount = 
-                    $('body:not(.NotificationsPage) button.new-tweets-bar').
+                    $('body:not(.NotificationsPage):not(.AdaptiveSearchPage) button.new-tweets-bar').
                       attr('data-item-count');
 
                 if(newTweetsCount != undefined && 
                    tweetBarTextTemplate != undefined) {
-
-                    //console.log("tbtt: "+tweetBarTextTemplate);
-                  /*
-                  var tweetText = "Tweets";
-                  if(newTweetsCount == "1") tweetText = "Tweet"; 
-
-                  $('body:not(.NotificationsPage) button.new-tweets-bar').
-                      text("See "+newTweetsCount+" new "+tweetText);
-                  */
-
-                    
-                  // testing ... > 20 
-                  /*
-                  var reconstructedTweetsBarText = 
-                      tweetBarTextTemplate.replace('XXX',newTweetsCount);
-
-                  $('body:not(.NotificationsPage) button.new-tweets-bar').
-                      text(reconstructedTweetsBarText);
-                  */
-                   
-
 
                   // tab title
                   //
@@ -240,7 +232,7 @@
                       var reconstructedTweetsBarText = 
                         tweetBarTextTemplate.replace('XXX',newTweetsCount);
 
-                      $('body:not(.NotificationsPage) button.new-tweets-bar').
+                      $('body:not(.NotificationsPage):not(.AdaptiveSearchPage) button.new-tweets-bar').
                         text(reconstructedTweetsBarText);
 
                       var oldtitle = $('title').text();
@@ -286,19 +278,16 @@
                         "tweetDeckVideosDemetricator");
             }
 
-
-            // new tweets bar(s), notification bar(s), and title bar
-            /*
-            $('body:not(.NotificationsPage) button.new-tweets-bar').
-                text("See new Tweets");
-                */
-
             demetricateNewTweetsBar(
-                $('body:not(.NotificationsPage) button.new-tweets-bar')
+                $('body:not(.NotificationsPage):not(.AdaptiveSearchPage) button.new-tweets-bar')
             );
             
             demetricateNewNotificationsBar(
                 $('body.NotificationsPage button.new-tweets-bar')
+            );
+
+            demetricateNewResultsBar(
+                $('body.AdaptiveSearchPage button.new-tweets-bar')
             );
 
             /*
@@ -336,6 +325,7 @@
     function main() {
 
         if(IS_CHROME_EXTENSION) {
+            addGlobalStyle(demetricatedStyle,"demetricator");
             // listen for messages from the extension control popup, 
             // adjust as directed
             chrome.runtime.onMessage.addListener(
@@ -391,7 +381,6 @@
         console.log("https://bengrosser.com/projects/twitter-demetricator/");
         console.log(" ... loaded for URL --> "+window.location);
 
-
         // if we don't want it on then undo the demetrication style
         if(!demetricated) 
             addGlobalStyle(inverseDemetricatedStyle,"demetricator");
@@ -411,7 +400,7 @@
         });
 
         // new tweets bar ("See 8 new Tweets" becomes "See new Tweets")
-        ready('body:not(.NotificationsPage) button.new-tweets-bar', 
+        ready('body:not(.NotificationsPage):not(.AdaptiveSearchPage) button.new-tweets-bar', 
           function(e) { 
 
               if(demetricated) demetricateNewTweetsBar(e);
@@ -426,13 +415,18 @@
         // ("See 8 new notifications" becomes "See new notifications")
         ready('body.NotificationsPage button.new-tweets-bar', 
           function(e) { 
-
-              if(demetricated) demetricateNewNotificationsBar(e);
-
-              // remove 1.0
-              //if(demetricated) $(e).text("new notifications"); 
-              }
+            if(demetricated) demetricateNewNotificationsBar(e);
+          }
         );
+
+        ready('body.AdaptiveSearchPage button.new-tweets-bar', 
+          function(e) { 
+            if(demetricated) demetricateNewResultsBar(e);
+          }
+        );
+
+
+
 
         // CHECK 1.0
         // "Someone and 8 others retweeted this" ??
@@ -908,6 +902,20 @@
         }
     }
 
+    function demetricateNewResultsBar(e) {
+        var resultsBarText = $(e).text().trim();
+
+        // look for a middle metric, extract demetricated text
+        var parsed = matchLeadingMetric(resultsBarText);
+
+        if(parsed) {
+            resultsBarTextDemetricated = parsed[2];
+            resultsBarTextTemplate =  "XXX " + parsed[2];
+            if(demetricated || demetricating) 
+                $(e).text(resultsBarTextDemetricated);
+        }
+    }
+
 
     function matchMiddleMetric(t) {
         return t.match(/([\s\S]*)\s+(\d+(?:[,|\s|.]\d+)*)\s+([\s\S]*)/);
@@ -945,12 +953,15 @@
 
     // originally from https://gist.github.com/Geruhn/7644599
     function addGlobalStyle(css,idname) {
+        //console.log("aGS, css: "+css+", id: "+idname);
+        
         var head, style;
         head = document.getElementsByTagName('head')[0];
         if (!head) { return; }
         style = document.createElement('style');
         style.type = 'text/css';
-        style.innerHTML = css;
+        style.appendChild(document.createTextNode(css));
+        //style.innerHTML = css;
         style.setAttribute("id",idname);
         head.appendChild(style);
     }
@@ -1075,4 +1086,6 @@ arguments)}}(b))};c.init();r.Mousetrap=c;"undefined"!==typeof module&&module.exp
 $(document).ready(function() { main(); });
 
 })(); // END
+
+
 
