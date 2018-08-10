@@ -1,4 +1,4 @@
-var tdURL = 'http://bengrosser.com/projects/textbook/';
+var tdURL = 'http://bengrosser.com/projects/twitter-demetricator/';
 var bgURL = 'http://bengrosser.com/';
 var fbdURL = 'http://bengrosser.com/projects/facebook-demetricator';
 
