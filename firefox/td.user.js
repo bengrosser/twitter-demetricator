@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.0.3
+// @version     1.0.5
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
@@ -95,7 +95,7 @@
     var demetricated = true;            // launch in demetricated state
     var demetricating = false;            // launch in demetricated state
     var curURL = window.location.href;  
-    var version = "1.0.3";
+    var version = "1.0.5";
 
     // variables to hold language-specific text for the new tweets
     // bar and the new notifications bar. this way I can reconstruct
@@ -110,15 +110,14 @@
     // a few metrics are easy, hidden via CSS. this style is mirrored in 
     // twitterdemetricator.css in order to inject *before* DOM renders on
     // first load, so need to maintain state in these vars plus that file
-    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum { opacity:0 !important; } .count-wrap { display:hide !important; }'; 
+    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; }'; 
 
-    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum { opacity:1 !important; } .count-wrap { display:unset !important; }';
+    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; }';
 
-    var tweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong { opacity:0 !important; }';
+    var tweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong, .like-count, .retweet-count, .reply-count { opacity:0 !important; }';
 
-    var inverseTweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong { opacity:1 !important; }';
-
-    var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:0 !important; }'; 
+    var inverseTweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong, .like-count, .retweet-count, .reply-count { opacity:1 !important; }';
+var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:0 !important; }'; 
 
     var inverseTweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:1 !important; }'; 
 
