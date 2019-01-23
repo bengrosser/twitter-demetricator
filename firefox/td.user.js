@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.1.0
+// @version     1.1.2
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
@@ -95,7 +95,7 @@
     var demetricated = true;            // launch in demetricated state
     var demetricating = false;            // launch in demetricated state
     var curURL = window.location.href;  
-    var version = "1.1.0";
+    var version = "1.1.2";
 
     // variables to hold language-specific text for the new tweets
     // bar and the new notifications bar. this way I can reconstruct
