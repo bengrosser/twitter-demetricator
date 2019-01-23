@@ -32,3 +32,16 @@ span.js-ticker-value,
     /*display:none;*/
     opacity:0;
 }
+
+
+/* new twitter */
+div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, // like/retweet/reply metrics in feed
+div.rn-z2knda.rn-1wbh5a2 a > div > span:first-child, // following/followers in popoutside
+a.rn-jwli3a span div div, // tweet detail page like/retweet/reply
+div.rn-7o8qx1 div.rn-axxi2z, // like metrics on individual tweet pages (e.g. /bengrosser/status/0982734...)
+a div span span.rn-vw2c0b, // profile hovercard following/follower metrics
+span span.rn-jwli3a // following/followers on profile
+{
+    display:none;
+}
+

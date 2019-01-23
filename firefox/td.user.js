@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.0.5
+// @version     1.1.0
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
@@ -95,7 +95,7 @@
     var demetricated = true;            // launch in demetricated state
     var demetricating = false;            // launch in demetricated state
     var curURL = window.location.href;  
-    var version = "1.0.5";
+    var version = "1.1.0";
 
     // variables to hold language-specific text for the new tweets
     // bar and the new notifications bar. this way I can reconstruct
@@ -107,17 +107,21 @@
     var resultsBarTextDemetricated;
     var resultsBarTextTemplate;
 
+    var newTwitter = false;
+    //var titleResetting = false;
+
     // a few metrics are easy, hidden via CSS. this style is mirrored in 
     // twitterdemetricator.css in order to inject *before* DOM renders on
     // first load, so need to maintain state in these vars plus that file
-    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; }'; 
+    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div.rn-z2knda.rn-1wbh5a2 a > div > span:first-child, a.rn-jwli3a span div div, div.rn-7o8qx1 div.rn-axxi2z, a div span span.rn-vw2c0b, span span.rn-jwli3a { display:none; } '; 
 
-    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; }';
+    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div.rn-z2knda.rn-1wbh5a2 a > div > span:first-child, a.rn-jwli3a span div div, div.rn-7o8qx1 div.rn-axxi2z, a div span span.rn-vw2c0b, span span.rn-jwli3a { display:inline !important; } '; 
 
     var tweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong, .like-count, .retweet-count, .reply-count { opacity:0 !important; }';
 
     var inverseTweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong, .like-count, .retweet-count, .reply-count { opacity:1 !important; }';
-var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:0 !important; }'; 
+
+    var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:0 !important; }'; 
 
     var inverseTweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:1 !important; }'; 
 
@@ -129,6 +133,7 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
             // remove injected styles and install inverse 
             // (because removing doesn't update as expected)
             // (though remove anyway to keep things tidy)
+            
             $('style#demetricator').remove();
             addGlobalStyle(inverseDemetricatedStyle,"inverseDemetricator");
 
@@ -144,6 +149,22 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
                         "inverseTweetDeckVideosDemetricator");
             }
 
+            // tab title handled differently on new twitter
+            if(newTwitter) {
+                var newNotificationsCount = 0; 
+                var notificationNodes = $('nav[aria-label="Primary"] div[dir="auto"]');
+
+                for(let i = 0; i < notificationNodes.length; i++) {
+                    newNotificationsCount += parseInt($(notificationNodes[i]).text()); 
+                }
+
+                if(newNotificationsCount != "0") {
+                    var oldtitle = $('title').text();
+                    //if(!titleResetting)
+                        $('title').text("("+newNotificationsCount+") "+oldtitle);
+                }
+
+            }
             // new tweets bar and title --
             // if we're on the notifications page, handle 
             // new tweets bar and title differently
@@ -188,6 +209,7 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
 
                     $('body.AdaptiveSearchPage button.new-tweets-bar').
                         text(reconstructedResultsBarText);
+
 
                     if(newResultsCount != "0") {
                         var oldtitle = $('title').text();
@@ -238,10 +260,29 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
                       $('title').text("("+newTweetsCount+") "+oldtitle);
                   }
                 }
+
+                if(newTwitter) {
+                    var newNotificationsCount = 0; 
+                    var notificationNodes = $('nav[aria-label="Primary"] div[dir="auto"]');
+
+                    for(let i = 0; i < notificationNodes.length; i++) {
+                        newNotificationsCount += parseInt($(notificationNodes[i]).text()); 
+                    }
+
+                    if(newNotificationsCount != "0") {
+                        var oldtitle = $('title').text();
+                        // if oldtitle hasn't been restored yet
+                        // messy, but will work until twitter fully transitions to new twitter
+                        // then will rewrite clean
+                        if(oldtitle.match(/\(/) == null) 
+                            $('title').text("("+newNotificationsCount+") "+oldtitle);
+                    }
+                }
             }
 
             // navbar metrics (e.g. on Notifications or Messages
             $('.count-inner').css('color','#fff');
+            $('nav[aria-label="Primary"] div[dir="auto"]').css('color','#fff');
 
             // catch everything else tagged for hide/show
             $('.notdemetricated').show();
@@ -296,13 +337,21 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
 
             $('title').text(demetricateTitle());
 
+
             // navbar metrics
             // need to stay aware of color theme changes, as they
             // adjust to match a user's banner image, etc.
-            var notificationBackgroundColor = 
-                $('.count-inner').css('background-color');
+            var notificationBackgroundColor;
+
+            if(newTwitter) {
+                notificationBackgroundColor = 
+                    $('nav[aria-label="Primary"] div[dir="auto"]').css('background-color');
+            } else {
+                notificationBackgroundColor = $('.count-inner').css('background-color');
+            }
 
             $('.count-inner').css('color',notificationBackgroundColor);
+            $('nav[aria-label="Primary"] div[dir="auto"]').css('color',notificationBackgroundColor);
 
             // catch everything else tagged for hide/show
             $('.notdemetricated').hide();
@@ -380,6 +429,11 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
         console.log("https://bengrosser.com/projects/twitter-demetricator/");
         console.log(" ... loaded for URL --> "+window.location);
 
+        if($('#react-root').length > 0) {
+            console.log(" ... NEW TWITTER DETECTED (will adjust accordingly)"); 
+            newTwitter = true;
+        }
+
         // if we don't want it on then undo the demetrication style
         if(!demetricated) 
             addGlobalStyle(inverseDemetricatedStyle,"demetricator");
@@ -393,9 +447,15 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
         // needed for navbar demetrication
         ready('style',function(e) {
             if(!demetricated) return;
-            var notificationBackgroundColor = 
-                $('.count-inner').css('background-color');
+            var notificationBackgroundColor;
+            if(newTwitter) {
+                notificationBackgroundColor = 
+                $('nav[aria-label="Primary"] div[dir="auto"]').css('background-color');
+            } else {
+                notificationBackgroundColor = $('.count-inner').css('background-color');
+            }
             $('.count-inner').css('color',notificationBackgroundColor);
+            $('nav[aria-label="Primary"] div[dir="auto"]').css('color',notificationBackgroundColor);
         });
 
         // new tweets bar ("See 8 new Tweets" becomes "See new Tweets")
@@ -471,17 +531,23 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
 
         function demetricateMiddleMetricPopup(e) {
             var txt = $(e).text();
+
             if(txt != undefined) {
 
-                var parsed = $(e).html().replace(/&nbsp;/gi,' ').
+                var parsed;
+
+                if(newTwitter) {
+                    parsed = $(e).html().match(/([\s\S]*)\s+(\d+(?:[,|\s|.]\d+)*)\s+([\s\S]*)/);
+                } else {
+                    parsed = $(e).html().replace(/&nbsp;/gi,' ').
                     match(/([\s\S]*)\s+(\d+(?:[,|\s|.]\d+)*)\s+([\s\S]*)/);
                     //match(/([\S]*)\s+(\d+(?:[,|\s|.]\d+)*)\s+([\s\S]*)/);
-                
-                //if(parsed) console.log(parsed);
+                }
+
                 if(parsed) {
                     var newhtml = parsed[1] + 
                         " <span class='notdemetricated' style='display:none;'>"+
-                        parsed[2] + "</span> "+ parsed[3];
+                        parsed[2] + " </span>"+ parsed[3];
                     $(e).html(newhtml);
                 } 
                 
@@ -512,6 +578,11 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
         ready('.js-relative-timestamp', function(e) {
               demetricateRelativeTime($(e), $(e).parent().parent());
         });
+
+        // new twitter
+        ready('time', 
+            function(e) { demetricateRelativeTime($(e), $(e)); }
+        );
 
         // tweetdeck timestamps
         if(curURL.contains("tweetdeck.twitter")) {
@@ -550,8 +621,12 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
 
             } else {
                 hideTarget.addClass("notdemetricated");
-                if(demetricated) hideTarget.hide();
+                if(demetricated) { 
+                    hideTarget.hide();
+                    hideTarget.parent().parent().parent().find('div[aria-hidden="true"]').addClass("notdemetricated").hide();
+                }
             }
+
         }
 
         // hover over user popup follower metrics
@@ -564,36 +639,135 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
             cloneAndDemetricateLeadingNum(e, "Tweets");
         });
 
-        // CONFIRM 1.0
-        // tweet actions (comment, retweet, favorite)
-        // continuously track because they may update while watching
-        // (confirm????)
-        // replace any metrics found with a "dot" indicator so users
-        // know they have *some* number of comments/retweets/favorites
-        ready('.ProfileTweet-actionList, .MomentTweetActions', function(e) {
-            var replyButton = $(e).find('.ProfileTweet-action--reply');
-            var retweetButton = $(e).find('.ProfileTweet-action--retweet');
-            var favoriteButton = $(e).find('.ProfileTweet-action--favorite');
-            var buttons = [replyButton, retweetButton, favoriteButton];
+        // NEW TWITTER "Trends for you" box includes lots of metrics
+        if(newTwitter) {
+            ready('div[aria-label="Timeline: Trending now"] div div div div div span span, div[aria-label="Timeline: Explore"] div div div div div span span',function(e) {
+                cloneAndDemetricateLeadingNum(e, "Tweets");
+            });
 
-            var dot;
+            ready('div[aria-label="Timeline: Trends"] div div div div div span span',function(e) {
+                cloneAndDemetricateLeadingNum(e, "Tweets");
+            });
 
-            if(demetricated) dot = '<sup class="button_dot demetricated" style="top:-10px;font-size:120%;font-weight:bold;font-family:serif;opacity:0.5">.</sup>';
-            else dot = '<sup class="button_dot demetricated" style="top:-10px;font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;display:none;">.</sup>';
+/*
+// not showing up in time
+            ready('a[data-testid="eventHero"] div:nth-child(1) div div div',function(e) {
+            $(e).addClass("WASHERE");
+                cloneAndDemetricateLeadingNum(e, "Tweets");
+            });
+            */
+        }
 
-            // for every button, check and add dot if needed
-            for(var i = 0; i < buttons.length; i++) {
-              if(buttons[i].
-                find('span.ProfileTweet-actionCount--isZero').length == 0) {
-                  if(buttons[i].hasClass("dotted")) return;
-                  else {
-                    buttons[i].addClass("dotted");
-                    $(dot).insertAfter(buttons[i].find('.IconContainer'));
-                    //buttons[i].find('span.Icon').css('font-size','unset');
-                  }
-               }
-             }
+
+
+        ready('nav[aria-label="Primary"] div[dir="auto"]', function(e) {
+            var notificationBackgroundColor = $(e).css('background-color');
+            $(e).css('color',notificationBackgroundColor);
         });
+
+        // old twitter tweet metrics / dots for like/retweet/reply
+        if(!newTwitter) {
+            ready('.ProfileTweet-actionList, .MomentTweetActions', function(e) {
+                var replyButton = $(e).find('.ProfileTweet-action--reply');
+                var retweetButton = $(e).find('.ProfileTweet-action--retweet');
+                var favoriteButton = $(e).find('.ProfileTweet-action--favorite');
+                var buttons = [replyButton, retweetButton, favoriteButton];
+
+                var dot;
+
+                if(demetricated) dot = '<sup class="button_dot demetricated" style="top:-10px;font-size:120%;font-weight:bold;font-family:serif;opacity:0.5">.</sup>';
+                else dot = '<sup class="button_dot demetricated" style="top:-10px;font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;display:none;">.</sup>';
+
+                // for every button, check and add dot if needed
+                for(var i = 0; i < buttons.length; i++) {
+                  if(buttons[i].
+                    find('span.ProfileTweet-actionCount--isZero').length == 0) {
+                      if(buttons[i].hasClass("dotted")) return;
+                      else {
+                        buttons[i].addClass("dotted");
+                        $(dot).insertAfter(buttons[i].find('.IconContainer'));
+                        //buttons[i].find('span.Icon').css('font-size','unset');
+                      }
+                   }
+                 }
+            });
+        }
+
+        // new twitter
+        else {
+            // tweet actions (comment, retweet, favorite)
+            // continuously track because they may update while watching
+            // replace any metrics found with a "dot" indicator so users
+            // know they have *some* number of comments/retweets/favorites
+            ready('div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"]', function(e) {
+
+                if(!newTwitter) return;
+                let singleTweetTest = $(e).css('height');
+                if(singleTweetTest.match(/4/) != null) return;
+
+                var replyButton = $(e).find('div[data-testid="reply"]');
+                var retweetButton = $(e).find('div[data-testid="retweet"]');
+                var favoriteButton = $(e).find('div[data-testid="like"]');
+                var buttons = [replyButton, retweetButton, favoriteButton];
+
+                var dot;
+
+                if(demetricated) dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-24px 0 0 2px;">.</sup>';
+                else dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-24px 0 0 2px;display:none;">.</sup>';
+
+
+                // for every button, check and add dot if needed
+                for(var i = 0; i < buttons.length; i++) {
+                   // if buttons aria-label starts with a digit, it has a count
+                   let buttonLabel = buttons[i].attr('aria-label');
+                   let buttonTest = buttons[i].attr('data-testid');
+
+                   // if buttonLabel starts w/ a num then there's a metric for this button
+                   // OR if the button's data-testid is undefined, then it's *going* to get updated by React
+                   if(buttonLabel != null && buttonLabel.match(/^\d/)) {
+                      if($(buttons[i]).hasClass("dotted")) return; 
+                      else {
+                        $(buttons[i]).addClass("dotted");
+                        $(dot).insertAfter($(buttons[i]).find('svg').parent());
+                      }
+                   } 
+                 }
+            });
+
+            ready('div[data-testid="unlike"], div[data-testid="unretweet"]', function(e) {
+                let singleTweetTest = $(e).css('height');
+                if(singleTweetTest.match(/4/) != null) return;
+
+                var dot;
+
+                if(demetricated) dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-14px 0 0 2px;">.</sup>';
+                else dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-14px 0 0 2px;display:none;">.</sup>';
+
+                let c = $(e).find('svg').css('color');
+
+                if($(e).hasClass("dotted")) return; 
+                else {
+                    $(e).addClass("dotted");
+                    let newdot = $(dot).insertAfter($(e));
+                    newdot.css('color',c);
+                }
+
+            });
+            
+            
+            // TODO: when someone likes/retweets an item that wasn't previously liked/retweeted
+            //  ... and THEN, if they unlike/unretweet, AND if they were the only one who had 
+            //  liked/retweeted it in the first place, then the dot is left in place until reload
+            //  having trouble finding a workable solution (at least w/o running another observer)
+            /*
+            ready('div[data-testid="like"], div[data-testid="retweet"]', function(e) {
+                console.log("got a new like or retweet node");
+                if($(e).hasClass('dotted') && $(e).attr('aria-label').match(/\d/) == null) {
+                    $(e).removeClass('dotted').find('.button_dot').remove();
+                } 
+            });
+            */
+        }
 
         // video "views" onload and after finished 
         // (two separate metrics to track)
@@ -606,6 +780,77 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
             cloneAndDemetricateLeadingNum($(e), "views");
           }
         );
+
+        // video views
+        if(newTwitter) {
+            ready('span[data-testid="viewCount"] span, div[data-testid="viewCount"] span', function(e) {
+                if($(e).hasClass("demetricator_checked")) return;
+                else $(e).addClass("demetricator_checked");
+                cloneAndDemetricateLeadingNum($(e), "views");
+            });
+        }
+
+        // search results
+        if(newTwitter) {
+            ready('form[role="search"] div[role="listbox"] div:nth-child(2) div[role="option"] div div:nth-child(2)', function(e) {
+                if($(e).hasClass("demetricator_checked")) return;
+                else $(e).addClass("demetricator_checked");
+                cloneAndDemetricateLeadingNum($(e), "views");
+
+            });
+        }
+
+        if(newTwitter) {
+            ready('a[title]', function(e) {
+                let ttxt = $(e).attr('title');
+                if(ttxt.match(/^\d/)) {
+                    if(!ttxt.contains("·")) {
+                        //console.log("scrubbing: "+ttxt);
+                        $(e).attr('title','');
+                    }
+                }
+            });
+        }
+
+        // others you follow in hovercards and profile pages
+        // I'm removing some originally embedded markup here
+        // but it doesn't seem to matter
+        if(newTwitter) {
+            ready('a[aria-label="Followers you know"] div span', function(e) {
+                if($(e).hasClass("demetricator_checked")) return;
+                else $(e).addClass("demetricator_checked");
+
+                var txt = $(e).text().trim();
+                var parsed = matchMiddleMetric(txt);
+
+                if(parsed) {
+                    var newhtml = 
+                        parsed[1] + 
+                        " <span class='notdemetricated' style='display:none;'>"+
+                        parsed[2] + " </span>"+ 
+                        parsed[3];
+                    $(e).html(newhtml);
+                    if(!demetricated) $(e).find('.notdemetricated').show();
+                }
+            });
+        }
+
+        // moments
+        if(newTwitter) {
+            // times such as '8 minutes ago' -- needs more work for inserted material
+            ready('a div div div:nth-child(3) div.rn-1sf4r6n.rn-n6v787[dir="auto"]',function(e) {
+                cloneAndDemetricateLeadingNum(e, "recently");
+            });
+        }
+
+        // lists
+        if(newTwitter) {
+            ready('div[data-focusable="true"] div div div:nth-child(3) div span.rn-7cikom.rn-homxoj[dir="auto"], div[data-focusable="true"] div div div:nth-child(4) div span.rn-7cikom.rn-homxoj[dir="auto"]', function(e) {
+                cloneAndDemetricateLeadingNum(e, "recently");
+            });
+        }
+
+
 
         // "20 Photos and videos" on a user's page
         ready('.PhotoRail-headingWithCount', function(e) {
@@ -687,10 +932,10 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
                cleantxt.
                match(/^(\d+(?:[,|\s|.]\d+)*\s?([K|k|M|m|]?|Tsd.|Mio.|mil|E|tn))\s+(.*)/);
             //if(parsed) console.log(parsed);
-            /*
-            if(parsed) 
-            console.log("t: "+txt+", c: "+cleantxt+", p[1]: "+parsed[3]);
-            */
+            //
+            
+            //if(parsed) console.log("t: "+txt+", c: "+cleantxt+", p[1]: "+parsed[3]);
+           
 
             // does sentence start with metric?
             //var check = txt.match(/^\d/);
@@ -769,18 +1014,14 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
         // watch the <title> tag
         // remove metrics when it has them
         var titleResetting = false;
-        var titleNode = document.querySelector('title');
+        var titleNode;
         var titleObserver = new MutationObserver(function(mutations) {
             
             if(!demetricated || titleResetting) return;
 
-            //console.log("resetting title");
-
             titleResetting = true;
 
             var newtxt = demetricateTitle();
-
-            //console.log("newtxt: "+newtxt);
 
             titleObserver.disconnect();
 
@@ -794,7 +1035,32 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
             );
         });
 
-        titleObserver.observe(titleNode, { childList: true })
+        
+        // new twitter needs additional steps ... thanks react -- NOT
+        if(newTwitter) {
+            function waitForTitleNode() {
+                titleNode = document.querySelector("title");
+                if(titleNode == null) {
+                    window.setTimeout(waitForTitleNode,500);
+                    return;
+                } else if(titleNode.nodeType != 1) {
+                    window.setTimeout(waitForTitleNode,500);
+                    return;
+                }
+                $(titleNode).text(demetricateTitle());
+                var config = {childList: true};
+                titleObserver.observe(titleNode,config); 
+            }
+
+            waitForTitleNode();
+        }
+
+        // old twitter
+        else {
+            titleNode = document.querySelector('title');
+            titleObserver.observe(titleNode, { childList: true })
+        }
+
 
 
         // monitor a <link> tag in <head> to track page location changes
@@ -927,7 +1193,6 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
     }
 
     function demetricateTitle() {
-        //console.log("in dT()");
 
         // grab current title text
         var ttxt = $('title').text(); 
@@ -939,12 +1204,10 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
         var newtxt = "";
 
         if(parsed) {
-            //console.log("found a number in title, parsing it out");
             newtxt = parsed[2];
         }
         else {
             newtxt = ttxt;
-            //console.log("no number in title, leaving alone");
         }
 
         return newtxt;
@@ -968,6 +1231,12 @@ var tweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { 
 
     // cleaner syntax than match()
     String.prototype.contains = function(it) { return this.indexOf(it) != -1; };
+
+// CHANGE 1.0
+// remove into one file for 1.0
+// jquery direct pasted below
+// from https://code.jquery.com/jquery-3.2.1.min.js
+//
 
 
 // CHANGE 1.0?
