@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.1.2
+// @version     1.1.3
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
@@ -95,7 +95,7 @@
     var demetricated = true;            // launch in demetricated state
     var demetricating = false;            // launch in demetricated state
     var curURL = window.location.href;  
-    var version = "1.1.2";
+    var version = "1.1.3";
 
     // variables to hold language-specific text for the new tweets
     // bar and the new notifications bar. this way I can reconstruct
@@ -641,7 +641,8 @@
 
         // NEW TWITTER "Trends for you" box includes lots of metrics
         if(newTwitter) {
-            ready('div[aria-label="Timeline: Trending now"] div div div div div span span, div[aria-label="Timeline: Explore"] div div div div div span span',function(e) {
+            //ready('div[aria-label="Timeline: Trending now"] div div div div div span span, div[aria-label="Timeline: Explore"] div div div div div span span',function(e) {
+            ready('div[aria-label="Timeline: Trending now"] div div div div div span, div[aria-label="Timeline: Explore"] div div div div div span',function(e) {
                 cloneAndDemetricateLeadingNum(e, "Tweets");
             });
 
