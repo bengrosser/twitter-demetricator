@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.1.3
+// @version     1.1.4
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
@@ -95,7 +95,7 @@
     var demetricated = true;            // launch in demetricated state
     var demetricating = false;            // launch in demetricated state
     var curURL = window.location.href;  
-    var version = "1.1.3";
+    var version = "1.1.4";
 
     // variables to hold language-specific text for the new tweets
     // bar and the new notifications bar. this way I can reconstruct
@@ -113,9 +113,9 @@
     // a few metrics are easy, hidden via CSS. this style is mirrored in 
     // twitterdemetricator.css in order to inject *before* DOM renders on
     // first load, so need to maintain state in these vars plus that file
-    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div.rn-z2knda.rn-1wbh5a2 a > div > span:first-child, a.rn-jwli3a span div div, div.rn-7o8qx1 div.rn-axxi2z, a div span span.rn-vw2c0b, span span.rn-jwli3a { display:none; } '; 
+    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.rn-z2knda.rn-1wbh5a2 a > div > span:first-child, a.rn-jwli3a span div div, div.rn-7o8qx1 div.rn-axxi2z, a div span span.rn-vw2c0b, span span.rn-jwli3a { display:none; } '; 
 
-    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div.rn-z2knda.rn-1wbh5a2 a > div > span:first-child, a.rn-jwli3a span div div, div.rn-7o8qx1 div.rn-axxi2z, a div span span.rn-vw2c0b, span span.rn-jwli3a { display:inline !important; } '; 
+    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.rn-z2knda.rn-1wbh5a2 a > div > span:first-child, a.rn-jwli3a span div div, div.rn-7o8qx1 div.rn-axxi2z, a div span span.rn-vw2c0b, span span.rn-jwli3a { display:inline !important; } '; 
 
     var tweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong, .like-count, .retweet-count, .reply-count { opacity:0 !important; }';
 
@@ -700,7 +700,12 @@
             // continuously track because they may update while watching
             // replace any metrics found with a "dot" indicator so users
             // know they have *some* number of comments/retweets/favorites
-            ready('div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"]', function(e) {
+           
+            // defunct 2/25/19
+            //ready('div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"]', function(e) {
+            
+            // new 2/25/19
+            ready('div[data-testid="tweet"]', function(e) {
 
                 if(!newTwitter) return;
                 let singleTweetTest = $(e).css('height');
