@@ -38,6 +38,10 @@ span.js-ticker-value,
 /*
  * defunct 2/25, leaving in place for a bit just in case
 div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, // like/retweet/reply metrics in feed
+
+* defunct 3/25
+div.rn-z2knda.rn-1wbh5a2 a > div > span:first-child, // following/followers in popoutside
+a div span span.rn-vw2c0b, // profile hovercard following/follower metrics
 */
 div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, // like/retweet/reply metrics in feed
 div[data-testid="like"] div span, // like tweet metrics
@@ -45,10 +49,10 @@ div[data-testid="unlike"] div span, // like tweet metrics if you liked it
 div[data-testid="reply"] div span, // reply tweet metrics
 div[data-testid="retweet"] div span, // retweet tweet metrics
 div[data-testid="unretweet"] div span, // unretweet tweet metrics
-div.rn-z2knda.rn-1wbh5a2 a > div > span:first-child, // following/followers in popoutside
+div.rn-z2knda.rn-1wbh5a2 a > span:first-child, // following/followers in popoutside
 a.rn-jwli3a span div div, // tweet detail page like/retweet/reply
 div.rn-7o8qx1 div.rn-axxi2z, // like metrics on individual tweet pages (e.g. /bengrosser/status/0982734...)
-a div span span.rn-vw2c0b, // profile hovercard following/follower metrics
+div a span.rn-vw2c0b, // profile hovercard following/follower metrics
 span span.rn-jwli3a // following/followers on profile
 {
     display:none;
