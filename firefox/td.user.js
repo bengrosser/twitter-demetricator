@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.1.4
+// @version     1.1.6
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
@@ -95,7 +95,7 @@
     var demetricated = true;            // launch in demetricated state
     var demetricating = false;            // launch in demetricated state
     var curURL = window.location.href;  
-    var version = "1.1.4";
+    var version = "1.1.6";
 
     // variables to hold language-specific text for the new tweets
     // bar and the new notifications bar. this way I can reconstruct
@@ -113,9 +113,9 @@
     // a few metrics are easy, hidden via CSS. this style is mirrored in 
     // twitterdemetricator.css in order to inject *before* DOM renders on
     // first load, so need to maintain state in these vars plus that file
-    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.rn-z2knda.rn-1wbh5a2 a > div > span:first-child, a.rn-jwli3a span div div, div.rn-7o8qx1 div.rn-axxi2z, a div span span.rn-vw2c0b, span span.rn-jwli3a { display:none; } '; 
+    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b, span span.r-jwli3a { display:none; } '; 
 
-    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.rn-z2knda.rn-1wbh5a2 a > div > span:first-child, a.rn-jwli3a span div div, div.rn-7o8qx1 div.rn-axxi2z, a div span span.rn-vw2c0b, span span.rn-jwli3a { display:inline !important; } '; 
+    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b, span span.r-jwli3a { display:inline !important; } '; 
 
     var tweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong, .like-count, .retweet-count, .reply-count { opacity:0 !important; }';
 
@@ -707,9 +707,15 @@
             // new 2/25/19
             ready('div[data-testid="tweet"]', function(e) {
 
+                //$(e).css('border','2px solid green');
                 if(!newTwitter) return;
+
+                /*
+                 * defunct 3/25 - can't recall why i had this
+                 * but no longer helping/working
                 let singleTweetTest = $(e).css('height');
                 if(singleTweetTest.match(/4/) != null) return;
+                */
 
                 var replyButton = $(e).find('div[data-testid="reply"]');
                 var retweetButton = $(e).find('div[data-testid="retweet"]');
@@ -822,7 +828,9 @@
         // I'm removing some originally embedded markup here
         // but it doesn't seem to matter
         if(newTwitter) {
-            ready('a[aria-label="Followers you know"] div span', function(e) {
+            // defunct 3/25
+            //ready('a[aria-label="Followers you know"] div span', function(e) {
+            ready('a[aria-label="Followers you know"] span', function(e) {
                 if($(e).hasClass("demetricator_checked")) return;
                 else $(e).addClass("demetricator_checked");
 
@@ -844,14 +852,14 @@
         // moments
         if(newTwitter) {
             // times such as '8 minutes ago' -- needs more work for inserted material
-            ready('a div div div:nth-child(3) div.rn-1sf4r6n.rn-n6v787[dir="auto"]',function(e) {
+            ready('a div div div:nth-child(3) div.r-1sf4r6n.r-n6v787[dir="auto"]',function(e) {
                 cloneAndDemetricateLeadingNum(e, "recently");
             });
         }
 
         // lists
         if(newTwitter) {
-            ready('div[data-focusable="true"] div div div:nth-child(3) div span.rn-7cikom.rn-homxoj[dir="auto"], div[data-focusable="true"] div div div:nth-child(4) div span.rn-7cikom.rn-homxoj[dir="auto"]', function(e) {
+            ready('div[data-focusable="true"] div div div:nth-child(3) div span.r-7cikom.r-homxoj[dir="auto"], div[data-focusable="true"] div div div:nth-child(4) div span.r-7cikom.r-homxoj[dir="auto"]', function(e) {
                 cloneAndDemetricateLeadingNum(e, "recently");
             });
         }
