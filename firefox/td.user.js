@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.1.6
+// @version     1.1.7
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
@@ -95,7 +95,7 @@
     var demetricated = true;            // launch in demetricated state
     var demetricating = false;            // launch in demetricated state
     var curURL = window.location.href;  
-    var version = "1.1.6";
+    var version = "1.1.7";
 
     // variables to hold language-specific text for the new tweets
     // bar and the new notifications bar. this way I can reconstruct
@@ -152,7 +152,8 @@
             // tab title handled differently on new twitter
             if(newTwitter) {
                 var newNotificationsCount = 0; 
-                var notificationNodes = $('nav[aria-label="Primary"] div[dir="auto"]');
+                //var notificationNodes = $('nav[aria-label="Primary"] div[dir="auto"]');
+                var notificationNodes = $('nav[aria-label="Primary"] div[aria-live="polite"]');
 
                 for(let i = 0; i < notificationNodes.length; i++) {
                     newNotificationsCount += parseInt($(notificationNodes[i]).text()); 
@@ -263,7 +264,8 @@
 
                 if(newTwitter) {
                     var newNotificationsCount = 0; 
-                    var notificationNodes = $('nav[aria-label="Primary"] div[dir="auto"]');
+                    //var notificationNodes = $('nav[aria-label="Primary"] div[dir="auto"]');
+                    var notificationNodes = $('nav[aria-label="Primary"] div[aria-live="polite"]');
 
                     for(let i = 0; i < notificationNodes.length; i++) {
                         newNotificationsCount += parseInt($(notificationNodes[i]).text()); 
@@ -282,7 +284,8 @@
 
             // navbar metrics (e.g. on Notifications or Messages
             $('.count-inner').css('color','#fff');
-            $('nav[aria-label="Primary"] div[dir="auto"]').css('color','#fff');
+            //$('nav[aria-label="Primary"] div[dir="auto"]').css('color','#fff');
+            $('nav[aria-label="Primary"] div[aria-live="polite"]').css('color','#fff');
 
             // catch everything else tagged for hide/show
             $('.notdemetricated').show();
@@ -345,13 +348,15 @@
 
             if(newTwitter) {
                 notificationBackgroundColor = 
-                    $('nav[aria-label="Primary"] div[dir="auto"]').css('background-color');
+                    //$('nav[aria-label="Primary"] div[dir="auto"]').css('background-color');
+                    $('nav[aria-label="Primary"] div[aria-live="polite"]').css('background-color');
             } else {
                 notificationBackgroundColor = $('.count-inner').css('background-color');
             }
 
             $('.count-inner').css('color',notificationBackgroundColor);
-            $('nav[aria-label="Primary"] div[dir="auto"]').css('color',notificationBackgroundColor);
+            //$('nav[aria-label="Primary"] div[dir="auto"]').css('color',notificationBackgroundColor);
+            $('nav[aria-label="Primary"] div[aria-live="polite"]').css('color',notificationBackgroundColor);
 
             // catch everything else tagged for hide/show
             $('.notdemetricated').hide();
@@ -450,12 +455,14 @@
             var notificationBackgroundColor;
             if(newTwitter) {
                 notificationBackgroundColor = 
-                $('nav[aria-label="Primary"] div[dir="auto"]').css('background-color');
+                //$('nav[aria-label="Primary"] div[dir="auto"]').css('background-color');
+                $('nav[aria-label="Primary"] div[aria-live="polite"]').css('background-color');
             } else {
                 notificationBackgroundColor = $('.count-inner').css('background-color');
             }
             $('.count-inner').css('color',notificationBackgroundColor);
-            $('nav[aria-label="Primary"] div[dir="auto"]').css('color',notificationBackgroundColor);
+            //$('nav[aria-label="Primary"] div[dir="auto"]').css('color',notificationBackgroundColor);
+            $('nav[aria-label="Primary"] div[aria-live="polite"]').css('color',notificationBackgroundColor);
         });
 
         // new tweets bar ("See 8 new Tweets" becomes "See new Tweets")
@@ -661,9 +668,16 @@
 
 
 
-        ready('nav[aria-label="Primary"] div[dir="auto"]', function(e) {
+        //ready('nav[aria-label="Primary"] div[dir="auto"]', function(e) {
+        ready('nav[aria-label="Primary"] div[aria-live="polite"]', function(e) {
             var notificationBackgroundColor = $(e).css('background-color');
             $(e).css('color',notificationBackgroundColor);
+        });
+
+        // new profile page user tweet tally (e.g. ben grosser, 3152 Tweets)
+        ready('h2[role="heading"][dir="auto"]',function(e) {
+            var t = $(e).parent().find('div[dir="auto"]');
+            cloneAndDemetricateLeadingNum(t, "Tweets");
         });
 
         // old twitter tweet metrics / dots for like/retweet/reply
