@@ -1274,7 +1274,7 @@
 // https://github.com/ryanmorr/ready
 // with very minor adjustment for vanilla js
 /*
- * Common varilables
+ * Common variables
  */
 let observer;
 const listeners = [];
