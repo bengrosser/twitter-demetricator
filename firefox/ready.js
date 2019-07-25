@@ -1,5 +1,5 @@
 /*
- * Common varilables
+ * Common variables
  */
 let observer;
 const listeners = [];
