@@ -758,10 +758,11 @@
                    // if buttons aria-label starts with a digit, it has a count
                    let buttonLabel = buttons[i].attr('aria-label');
                    let buttonTest = buttons[i].attr('data-testid');
-
+                   
+                    
                    // if buttonLabel starts w/ a num then there's a metric for this button
                    // OR if the button's data-testid is undefined, then it's *going* to get updated by React
-                   if(buttonLabel != null && buttonLabel.match(/^\d/)) {
+                   if(buttonLabel != null && buttonLabel.match(/^\d/)!= 0 ) {
                       if($(buttons[i]).hasClass("dotted")) return; 
                       else {
                         $(buttons[i]).addClass("dotted");
