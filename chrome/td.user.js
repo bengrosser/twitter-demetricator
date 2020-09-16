@@ -741,14 +741,26 @@
                 let singleTweetTest = $(e).css('height');
                 if(singleTweetTest.match(/4/) != null) return;
                 */
-
+                
                 var replyButton = $(e).find('div[data-testid="reply"]');
+                if(!replyButton.attr('aria-label')){
+                    replyButton = $(e.nextElementSibling).find('div[data-testid="reply"]');
+                }
                 var retweetButton = $(e).find('div[data-testid="retweet"]');
+                if(!retweetButton.attr('aria-label')){
+                    retweetButton = $(e.nextElementSibling).find('div[data-testid="retweet"]');
+                }
                 var favoriteButton = $(e).find('div[data-testid="like"]');
+                if(!favoriteButton.attr('aria-label')){
+                    favoriteButton = $(e.nextElementSibling).find('div[data-testid="like"]');
+                }
                 var buttons = [replyButton, retweetButton, favoriteButton];
 
                 var dot;
 
+                console.log(!replyButton.attr('aria-label'));
+                //console.log($(e.nextElementSibling).find('div[data-testid="reply"]'));
+                
                 if(demetricated) dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-24px 0 0 2px;">.</sup>';
                 else dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-24px 0 0 2px;display:none;">.</sup>';
 
@@ -756,10 +768,12 @@
                 // for every button, check and add dot if needed
                 for(var i = 0; i < buttons.length; i++) {
                    // if buttons aria-label starts with a digit, it has a count
+                   //console.log(buttons[i])
                    let buttonLabel = buttons[i].attr('aria-label');
                    let buttonTest = buttons[i].attr('data-testid');
                    
-                    
+                    console.log(buttonLabel)
+                    console.log(buttonTest)
                    // if buttonLabel starts w/ a num then there's a metric for this button
                    // OR if the button's data-testid is undefined, then it's *going* to get updated by React
                    if(buttonLabel != null && buttonLabel.match(/^\d/)!= 0 ) {
@@ -768,7 +782,7 @@
                         $(buttons[i]).addClass("dotted");
                         $(dot).insertAfter($(buttons[i]).find('svg').parent());
                       }
-                   } 
+                   }
                  }
             });
 
