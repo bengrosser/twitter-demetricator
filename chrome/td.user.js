@@ -825,8 +825,7 @@
             ready('div[data-testid = "previewInterstitial"]', function(e) {
                 let curr_parent = $(e).children()[1];
                 let views_div = $(curr_parent).children()[1];
-                //console.log($(e).children()[1]);
-                //console.log($(curr_parent).children()[1]);
+
                 if($(views_div).hasClass("demetricator_checked")) return;
                 else $(views_div).addClass("demetricator_checked");
                 cloneAndDemetricateLeadingNum2($(views_div), "views");
@@ -835,25 +834,23 @@
             ready('div[data-testid = "videoPlayer"]', function(e) {
                 let curr_parent = $(e).children()[1];
                 let views_div = $(curr_parent).children()[1];
-                //console.log(e);
-                //console.log($(e).children()[1]);
-                //console.log($(curr_parent).children()[1]);
+
                 if($(views_div).hasClass("demetricator_checked")) return;
                 else $(views_div).addClass("demetricator_checked");
                 cloneAndDemetricateLeadingNum2($(views_div), "views");
             });
 
-            ready('div[data-testid = "placementTracking"]', function(e) {
-                let curr_parent = $(e).children()[1];
-                let views_div = $(curr_parent).children()[1];
-                console.log($("(e):contains('views')"));
-                //console.log($($(e).find('span')));
-                if($(views_div).hasClass("demetricator_checked")) return;
-                else $(views_div).addClass("demetricator_checked");
-                cloneAndDemetricateLeadingNum2($(views_div), "views");
+            ready('div[data-testid = "placementTracking"] span:nth-child(1)', function(e) {
+                var txt = ($(e).text()).trim();
+                console.log(txt.includes("views"));
+                console.log($(e).text);
+                if(txt.includes("views")){
+                    if($(e).hasClass("demetricator_checked")) return;
+                    else $(e).addClass("demetricator_checked");
+                    cloneAndDemetricateLeadingNum2($(e), "views");
+                }                
             });
 
-            //<span class="css-901oao css-16my406 r-1qd0xha r-ad9z0x r-bcqeeo r-qvutc0">88K views</span>
 
             ready('span[data-testid="viewCount"] span, div[data-testid="viewCount"] span', function(e) {
                 
