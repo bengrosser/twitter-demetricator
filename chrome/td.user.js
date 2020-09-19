@@ -1037,18 +1037,13 @@
 
             // does sentence start with metric?
             var check = txt.match(/^\d/);
-            //console.log(txt)
-            //console.log(check)
+
             // if it does, clone, hide, insert demetricated version
             if(check) {
                 var orig = $(e);
                 var clone = orig.clone();
-                
-                //console.log('orig',orig);
-                //console.log('clone',clone);
                 clone.text(dTxt);
                 clone.css("color","white");
-                //console.log(clone.text(dTxt));
                 clone.addClass("demetricated");
                 orig.addClass("notdemetricated");
                 if(demetricated) orig.hide();
