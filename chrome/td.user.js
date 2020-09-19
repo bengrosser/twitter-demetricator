@@ -822,19 +822,12 @@
 
         // video views
         if(newTwitter) {
-            ready('div[data-testid = "previewInterstitial"]', function(e) {
+            
+            ready('div[data-testid = "videoPlayer"], div[data-testid = "previewInterstitial"]', function(e) {
                 let curr_parent = $(e).children()[1];
                 let views_div = $(curr_parent).children()[1];
 
-                if($(views_div).hasClass("demetricator_checked")) return;
-                else $(views_div).addClass("demetricator_checked");
-                cloneAndDemetricateLeadingNum2($(views_div), "views");
-            });
-
-            ready('div[data-testid = "videoPlayer"]', function(e) {
-                let curr_parent = $(e).children()[1];
-                let views_div = $(curr_parent).children()[1];
-
+                console.log($(e));
                 if($(views_div).hasClass("demetricator_checked")) return;
                 else $(views_div).addClass("demetricator_checked");
                 cloneAndDemetricateLeadingNum2($(views_div), "views");
