@@ -822,7 +822,7 @@
 
         // video views
         if(newTwitter) {
-            
+
             ready('div[data-testid = "videoPlayer"], div[data-testid = "previewInterstitial"]', function(e) {
                 let curr_parent = $(e).children()[1];
                 let views_div = $(curr_parent).children()[1];
@@ -835,8 +835,7 @@
 
             ready('div[data-testid = "placementTracking"] span:nth-child(1)', function(e) {
                 var txt = ($(e).text()).trim();
-                console.log(txt.includes("views"));
-                console.log($(e).text);
+
                 if(txt.includes("views")){
                     if($(e).hasClass("demetricator_checked")) return;
                     else $(e).addClass("demetricator_checked");
