@@ -827,7 +827,6 @@
                 let curr_parent = $(e).children()[1];
                 let views_div = $(curr_parent).children()[1];
 
-                console.log($(e));
                 if($(views_div).hasClass("demetricator_checked")) return;
                 else $(views_div).addClass("demetricator_checked");
                 cloneAndDemetricateLeadingNum2($(views_div), "views");
