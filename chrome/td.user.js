@@ -822,7 +822,29 @@
 
         // video views
         if(newTwitter) {
+
+            ready('div[data-testid = "videoPlayer"], div[data-testid = "previewInterstitial"]', function(e) {
+                let curr_parent = $(e).children()[1];
+                let views_div = $(curr_parent).children()[1];
+
+                if($(views_div).hasClass("demetricator_checked")) return;
+                else $(views_div).addClass("demetricator_checked");
+                cloneAndDemetricateLeadingNum2($(views_div), "views");
+            });
+
+            ready('div[data-testid = "placementTracking"] span:nth-child(1)', function(e) {
+                var txt = ($(e).text()).trim();
+
+                if(txt.includes("views")){
+                    if($(e).hasClass("demetricator_checked")) return;
+                    else $(e).addClass("demetricator_checked");
+                    cloneAndDemetricateLeadingNum2($(e), "views");
+                }                
+            });
+
+
             ready('span[data-testid="viewCount"] span, div[data-testid="viewCount"] span', function(e) {
+                
                 if($(e).hasClass("demetricator_checked")) return;
                 else $(e).addClass("demetricator_checked");
                 cloneAndDemetricateLeadingNum($(e), "views");
@@ -1020,11 +1042,13 @@
                 var orig = $(e);
                 var clone = orig.clone();
                 clone.text(dTxt);
+                clone.css("color","white");
                 clone.addClass("demetricated");
                 orig.addClass("notdemetricated");
                 if(demetricated) orig.hide();
                 else clone.hide();
                 clone.insertAfter(orig);
+                
             }
         }
 
