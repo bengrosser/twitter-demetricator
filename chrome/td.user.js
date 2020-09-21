@@ -113,8 +113,7 @@
     // a few metrics are easy, hidden via CSS. this style is mirrored in 
     // twitterdemetricator.css in order to inject *before* DOM renders on
     // first load, so need to maintain state in these vars plus that file
-    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b span.r-jwli3a, span span.r-jwli3a { display:none; } '; 
-
+    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b , span span.r-jwli3a { display:none; } '; 
 
     var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup="false"] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b, span span.r-jwli3a { display:inline !important; } '; 
 
@@ -872,6 +871,20 @@
                 }
             });
         }
+
+
+        //verified account hidden through global demetricated style because the spans have the exact same class
+
+        ready( 'div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b', function(e){
+            //console.log($("div.css-1dbjc4n:contains('From ')"));
+            
+            var next_sib = $(e.nextSibling);
+            var verified = next_sib.find('svg');
+
+            if(verified && verified.attr('aria-label') == "Verified account"){
+                e.style = "display: inline !important";
+            }
+        });
 
         // others you follow in hovercards and profile pages
         // I'm removing some originally embedded markup here
