@@ -113,7 +113,7 @@
     // a few metrics are easy, hidden via CSS. this style is mirrored in 
     // twitterdemetricator.css in order to inject *before* DOM renders on
     // first load, so need to maintain state in these vars plus that file
-    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b, span span.r-jwli3a { display:none; } '; 
+    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b span.r-jwli3a, span span.r-jwli3a { display:none; } '; 
 
 
     var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup="false"] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b, span span.r-jwli3a { display:inline !important; } '; 
@@ -545,11 +545,11 @@
             'div[aria-label="Timeline: Notifications"] article span span span',
             function(e) { demetricateMiddleMetricPopup(e); 
         });
-
+        
         function demetricateMiddleMetricPopup(e) {
             var txt = $(e).text();
             var htm = $(e).html();
-
+            
             if(txt != undefined && htm != undefined) {
 
                 var parsed;
@@ -563,6 +563,7 @@
                 }
 
                 if(parsed) {
+                    
                     var newhtml = parsed[1] + 
                         " <span class='notdemetricated' style='display:none;'>"+
                         parsed[2] + " </span>"+ parsed[3];
@@ -734,7 +735,7 @@
 
                 //$(e).css('border','2px solid green');
                 if(!newTwitter) return;
-
+                
                 /*
                  * defunct 3/25 - can't recall why i had this
                  * but no longer helping/working
@@ -759,7 +760,6 @@
                    let buttonLabel = buttons[i].attr('aria-label');
                    let buttonTest = buttons[i].attr('data-testid');
                    
-                    
                    // if buttonLabel starts w/ a num then there's a metric for this button
                    // OR if the button's data-testid is undefined, then it's *going* to get updated by React
                    if(buttonLabel != null && buttonLabel.match(/^\d/)!= 0 ) {
@@ -860,7 +860,7 @@
 
             });
         }
-
+        
         if(newTwitter) {
             ready('a[title]', function(e) {
                 let ttxt = $(e).attr('title');
