@@ -2,6 +2,8 @@
 /* pre-load CSS */
 /* mirrored in userscript demetricatedStyle */
 
+/* PRETTY next 3 RULEs NOW VOID 10/30/20 */
+/* used in tweetdeck? */
 .ProfileCardStats-statValue, 
 .ProfileTweet-actionCountForPresentation, 
 .ProfileNav-value, 
@@ -12,6 +14,8 @@ a[data-tweet-stat-count] strong,
 .MomentCapsuleLikesFacepile-countNum
 { 
   opacity:0; 
+  opacity:1;
+  border:3px solid green;
 } 
 
 .count-wrap
@@ -61,6 +65,21 @@ div.rn-z2knda.rn-1wbh5a2 a > span:first-child, // following/followers in popouts
 div.r-7o8qx1 div.r-axxi2z, // like metrics on individual tweet pages (e.g. /bengrosser/status/0982734...)
 div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b, // profile and popout following/follower metrics 4/1
 span span.r-jwli3a // following/followers on profile 3/25
+{
+    /*
+    display:none;
+opacity:0;
+    */
+
+opacity:1;
+border:3px solid orange;
+}
+
+/* need to add to inverse */
+a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08xa, 
+a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08x, /* likes/etc on single tweet page */ 
+div.css-1dbjc4n.r-1w6e6rj a[dir="auto"] span:nth-child(1) span,
+div.css-1dbjc4n.r-ku1wi2 a[dir="auto"] span:nth-child(1) span /* new following/follower profile */
 {
     display:none;
 }
