@@ -129,6 +129,7 @@
 
     function toggleDemetricator() {
 
+        console.log("toggle, demetricated = "+demetricated);
         // turn OFF demetrication :(
         if(demetricated) {
             // remove injected styles and install inverse 
@@ -287,6 +288,8 @@
             $('.count-inner').css('color','#fff');
             //$('nav[aria-label="Primary"] div[dir="auto"]').css('color','#fff');
             $('nav[aria-label="Primary"] div[aria-live="polite"]').css('color','#fff');
+            console.log('running 1');
+            $('div[role="menu"] div[aria-live="polite"]').css('color','rgb(255,255,255)');
 
             // catch everything else tagged for hide/show
             $('.notdemetricated').show();
@@ -359,6 +362,9 @@
             //$('nav[aria-label="Primary"] div[dir="auto"]').css('color',notificationBackgroundColor);
             $('nav[aria-label="Primary"] div[aria-live="polite"]').css('color',notificationBackgroundColor);
 
+            // account switcher metrics in menu
+           // $('div[role="menu"] div[aria-live="polite"]').css('color',notificationBackgroundColor);
+
             // catch everything else tagged for hide/show
             $('.notdemetricated').hide();
             $('.demetricated').fadeIn(); // fades in the dots
@@ -377,6 +383,7 @@
     }
 
     function main() {
+        console.log('main');
 
         if(IS_CHROME_EXTENSION) {
             addGlobalStyle(demetricatedStyle,"demetricator");
@@ -464,6 +471,7 @@
             $('.count-inner').css('color',notificationBackgroundColor);
             //$('nav[aria-label="Primary"] div[dir="auto"]').css('color',notificationBackgroundColor);
             $('nav[aria-label="Primary"] div[aria-live="polite"]').css('color',notificationBackgroundColor);
+            //$('div[role="menu"] div[aria-live="polite"]').css('color',notificationBackgroundColor);
         });
 
         // new tweets bar ("See 8 new Tweets" becomes "See new Tweets")
@@ -680,9 +688,18 @@
 
 
         //ready('nav[aria-label="Primary"] div[dir="auto"]', function(e) {
-        ready('nav[aria-label="Primary"] div[aria-live="polite"]', function(e) {
+        //ready('nav[aria-label="Primary"] div[aria-live="polite"], div[role="menu"] div[aria-live="polite"]', function(e) {
+        ready('nav[aria-label="Primary"] div[dir="auto"]', function(e) {
             var notificationBackgroundColor = $(e).css('background-color');
             $(e).css('color',notificationBackgroundColor);
+        });
+
+        ready('div[role="menu"] div[aria-live="polite"]', function(e) {
+            if(demetricated || demetricating) {
+              var notificationBackgroundColor = $(e).css('background-color');
+              $(e).css('color',notificationBackgroundColor);
+                console.log("running");
+            }
         });
 
         // new profile page user tweet tally (e.g. ben grosser, 3152 Tweets)
