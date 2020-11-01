@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.1.8
+// @version     1.2.0
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
@@ -42,6 +42,9 @@
 //  - Frank Pasquale
 //  - Jill Walker Rettberg
 //
+//  Thanks to bug fixes from:
+//  - Sansrkuti Baburao
+//
 //  Language Support:
 //  Twitter Demetricator has been written to support 
 //  a variety of languages automatically. More work could
@@ -77,16 +80,8 @@
 (function() {
 
     // KNOWN BUGS
-    //
-    // views on iframe videos on tweetdeck ... can't get demetrication
-    // to happen, though can hide whole '8 views' line
-    // 
     // need to rework tweetdeck time demetrication to opacity rather than 
     // hiding ... b/c notifications column twitches on toggle with hide
-    //
-    // favorite/love icon shifts a few pixels from the added dot,
-    // and the dot is a little closer to it than the other icons. 
-    // this one is tricky...
 
     'use strict';
 
@@ -95,7 +90,7 @@
     var demetricated = true;            // launch in demetricated state
     var demetricating = false;            // launch in demetricated state
     var curURL = window.location.href;  
-    var version = "1.1.8";
+    var version = "1.2.0";
 
     // variables to hold language-specific text for the new tweets
     // bar and the new notifications bar. this way I can reconstruct
@@ -113,10 +108,12 @@
     // a few metrics are easy, hidden via CSS. this style is mirrored in 
     // twitterdemetricator.css in order to inject *before* DOM renders on
     // first load, so need to maintain state in these vars plus that file
-    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b, span span.r-jwli3a { display:none; } '; 
+    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b , span span.r-jwli3a { opacity:0; } div[data-testid="unretweet"] div span, div[data-testid="unlike"] div span, a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08xa, a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08x:not(.r-h9hxbl), div.css-1dbjc4n.r-1w6e6rj a[dir="auto"] span:nth-child(1) span, div.css-1dbjc4n.r-ku1wi2 a[dir="auto"] span:nth-child(1) span { /*display:none;*/opacity:0; }'; 
 
 
-    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="unlike"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div[data-testid="unretweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup="false"] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b, span span.r-jwli3a { display:inline !important; } '; 
+
+    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup="false"] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b, span span.r-jwli3a { display:inline !important;opacity:1; }  div[data-testid="unretweet"] div span, div[data-testid="unlike"] div span, a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08xa, a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08x:not(.r-h9hxbl), div.css-1dbjc4n.r-1w6e6rj a[dir="auto"] span:nth-child(1) span, div.css-1dbjc4n.r-ku1wi2 a[dir="auto"] span:nth-child(1) span { display:inline !important; } '; 
+
 
     var tweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong, .like-count, .retweet-count, .reply-count { opacity:0 !important; }';
 
@@ -149,6 +146,8 @@
                 addGlobalStyle(inverseTweetDeckVideosDemetricatedStyle,
                         "inverseTweetDeckVideosDemetricator");
             }
+
+            $('.bdot').css('opacity','0');
 
             // tab title handled differently on new twitter
             if(newTwitter) {
@@ -287,6 +286,7 @@
             $('.count-inner').css('color','#fff');
             //$('nav[aria-label="Primary"] div[dir="auto"]').css('color','#fff');
             $('nav[aria-label="Primary"] div[aria-live="polite"]').css('color','#fff');
+            $('div[role="menu"] div[aria-live="polite"]').css('color','rgb(255,255,255)');
 
             // catch everything else tagged for hide/show
             $('.notdemetricated').show();
@@ -315,6 +315,8 @@
                 addGlobalStyle(tweetDeckDemetricatedStyle,
                         "tweetDeckDemetricator");
             }
+
+            $('.bdot').css('opacity','0.5');
 
             if(curURL.contains("i/videos")) {
                 $('style#inverseTweetDeckVideosDemetricator').remove();
@@ -349,15 +351,16 @@
 
             if(newTwitter) {
                 notificationBackgroundColor = 
-                    //$('nav[aria-label="Primary"] div[dir="auto"]').css('background-color');
                     $('nav[aria-label="Primary"] div[aria-live="polite"]').css('background-color');
             } else {
                 notificationBackgroundColor = $('.count-inner').css('background-color');
             }
 
             $('.count-inner').css('color',notificationBackgroundColor);
-            //$('nav[aria-label="Primary"] div[dir="auto"]').css('color',notificationBackgroundColor);
             $('nav[aria-label="Primary"] div[aria-live="polite"]').css('color',notificationBackgroundColor);
+
+            // account switcher metrics in menu
+           // $('div[role="menu"] div[aria-live="polite"]').css('color',notificationBackgroundColor);
 
             // catch everything else tagged for hide/show
             $('.notdemetricated').hide();
@@ -374,6 +377,7 @@
             demetricated = true;
             demetricating = false;
         }
+        console.log("demetricated = "+demetricated);
     }
 
     function main() {
@@ -427,7 +431,7 @@
         // no toggle dropdown on non-Chrome, so enable key control 
         // also enable if explicitly set 
         if(!IS_CHROME_EXTENSION || KEY_CONTROL) {
-            Mousetrap.bind('ctrl+d', toggleDemetricator);
+            //Mousetrap.bind('ctrl+d', toggleDemetricator);
         }
 
         // console reporting
@@ -456,13 +460,11 @@
             var notificationBackgroundColor;
             if(newTwitter) {
                 notificationBackgroundColor = 
-                //$('nav[aria-label="Primary"] div[dir="auto"]').css('background-color');
                 $('nav[aria-label="Primary"] div[aria-live="polite"]').css('background-color');
             } else {
                 notificationBackgroundColor = $('.count-inner').css('background-color');
             }
             $('.count-inner').css('color',notificationBackgroundColor);
-            //$('nav[aria-label="Primary"] div[dir="auto"]').css('color',notificationBackgroundColor);
             $('nav[aria-label="Primary"] div[aria-live="polite"]').css('color',notificationBackgroundColor);
         });
 
@@ -546,10 +548,25 @@
             function(e) { demetricateMiddleMetricPopup(e); 
         });
 
+
+        // Soandso and 43 others follow on user profile and some popups I think 
+        ready('div[data-testid="UserCell"] div.r-16y2uox span[dir="ltr"] span', 
+            function(e) { 
+                demetricateMiddleMetricPopup(e); 
+            }
+        );
+
+        // Soandso in temporary popups (such as tagged users in a tweet)
+        // don't demetricate if we're not turned on as this popup goes away when user hovers off
+        ready('a[aria-label="Followers you know"] div span[dir="auto"]', function (e) {
+            if(demetricated || demetricating) demetricateMiddleMetricPopup(e);
+        });
+
+        
         function demetricateMiddleMetricPopup(e) {
             var txt = $(e).text();
             var htm = $(e).html();
-
+            
             if(txt != undefined && htm != undefined) {
 
                 var parsed;
@@ -563,6 +580,7 @@
                 }
 
                 if(parsed) {
+                    
                     var newhtml = parsed[1] + 
                         " <span class='notdemetricated' style='display:none;'>"+
                         parsed[2] + " </span>"+ parsed[3];
@@ -679,14 +697,27 @@
 
 
 
-        //ready('nav[aria-label="Primary"] div[dir="auto"]', function(e) {
+        // 10/30/20 -- adjusted selector to get nav notifications
+        // and stop hiding nav text
         ready('nav[aria-label="Primary"] div[aria-live="polite"]', function(e) {
             var notificationBackgroundColor = $(e).css('background-color');
-            $(e).css('color',notificationBackgroundColor);
+            if(demetricated) $(e).css('color',notificationBackgroundColor);
+        });
+
+        ready('div[role="menu"] div[aria-live="polite"]', function(e) {
+            if(demetricated || demetricating) {
+              var notificationBackgroundColor = $(e).css('background-color');
+              $(e).css('color',notificationBackgroundColor);
+            }
         });
 
         // new profile page user tweet tally (e.g. ben grosser, 3152 Tweets)
         ready('h2[role="heading"][dir="auto"]',function(e) {
+            var t = $(e).parent().find('div[dir="auto"]');
+            cloneAndDemetricateLeadingNum(t, "Tweets");
+        });
+
+        ready('div.r-1habvwh div[dir="auto"].r-n6v787.css-bfa6kz', function(e) {
             var t = $(e).parent().find('div[dir="auto"]');
             cloneAndDemetricateLeadingNum(t, "Tweets");
         });
@@ -728,13 +759,15 @@
            
             // defunct 2/25/19
             //ready('div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"]', function(e) {
+            //
+            let mydot = 
+                "<div class='bdot demetricated' style='font-size:120%;font-weight:bold;position:absolute;top:-12px;left:20px;opacity:0.5;'>.</div>";
             
             // new 2/25/19
             ready('div[data-testid="tweet"]', function(e) {
 
-                //$(e).css('border','2px solid green');
                 if(!newTwitter) return;
-
+                
                 /*
                  * defunct 3/25 - can't recall why i had this
                  * but no longer helping/working
@@ -749,8 +782,13 @@
 
                 var dot;
 
-                if(demetricated) dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-24px 0 0 2px;">.</sup>';
-                else dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-24px 0 0 2px;display:none;">.</sup>';
+                /*
+                if(demetricated) dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-24px 24px 0 2px;">.</sup>';
+                else dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-24px 24px 0 2px;display:none;">.</sup>';
+                */
+
+                if(demetricated) dot = '<div class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;position:absolute;top:-16px;left:18px;">.</div>';
+                else dot = '<div class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;position:absolute;top:-16px;left:18px;display:none;">.</div>';
 
 
                 // for every button, check and add dot if needed
@@ -758,18 +796,43 @@
                    // if buttons aria-label starts with a digit, it has a count
                    let buttonLabel = buttons[i].attr('aria-label');
                    let buttonTest = buttons[i].attr('data-testid');
-
+                   
                    // if buttonLabel starts w/ a num then there's a metric for this button
                    // OR if the button's data-testid is undefined, then it's *going* to get updated by React
-                   if(buttonLabel != null && buttonLabel.match(/^\d/)) {
-                      if($(buttons[i]).hasClass("dotted")) return; 
+                   if(buttonLabel != null && buttonLabel.match(/^\d/)!= 0 ) {
+                      if($(buttons[i]).hasClass("dotted")) {
+                        return; 
+                      }
                       else {
                         $(buttons[i]).addClass("dotted");
-                        $(dot).insertAfter($(buttons[i]).find('svg').parent());
+                        $(buttons[i]).before(mydot);
+                        let b = $(buttons[i]);
+
+                        setTimeout(function() {
+                            let c = b.find('svg').css('color');
+                            b.parent().find('.bdot').css('color',c);
+                        }, 500);
+
+                        if(!demetricated) $(buttons[i]).parent().find('.bdot').hide();
+                        
                       }
                    } 
                  }
             });
+
+            // only for when someone unlikes or unretweets so we can turn dot color back off
+            /*
+            ready('div[data-testid="like"], div[data-testid="retweet"]', function(e) {
+                if($(e).hasClass("dotted")) {
+                    console.log("has dotted");
+                    setTimeout(function() {
+                      let c = $(e).find('svg').css('color');
+                      $(e).parent().find('.bdot').css('color',c);
+                    }, 500);
+                }
+                else console.log("no dotted");
+            });
+            */
 
             ready('div[data-testid="unlike"], div[data-testid="unretweet"]', function(e) {
                 let singleTweetTest = $(e).css('height');
@@ -778,16 +841,37 @@
                 var dot;
 
                 // changing offset for colored dots based on Twitter change jul 2019
-                if(demetricated) dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-6px 0 0 2px;">.</sup>';
-                else dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-6px 0 0 2px;display:none;">.</sup>';
+                // and again for oct 2020
+                /*
+                if(demetricated) dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-14px 14px 0 2px;">.</sup>';
+                else dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-14px 14px 0 2px;display:none;">.</sup>';
+                */
 
-                let c = $(e).find('svg').css('color');
+                if(demetricated) dot = '<div class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;position:absolute;top:-16px;left:18px;">.</div>';
+                else dot = '<div class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;position:absolute;top:-16px;left:18px;display:none;">.</div>';
 
-                if($(e).hasClass("dotted")) return; 
+
+
+                if($(e).hasClass("dotted")) {
+                    // check color then return
+                    // need to wait for Twitter icon animation to finish b4 color is avail
+                    setTimeout(function() {
+                      let c = $(e).find('svg').css('color');
+                      $(e).parent().find('.bdot').css('color',c);
+                    }, 1500);
+
+                    return; 
+                }
                 else {
                     $(e).addClass("dotted");
-                    let newdot = $(dot).insertAfter($(e));
-                    newdot.css('color',c);
+                    $(e).before(mydot);
+                    //let newdot = $(dot).insertAfter($(e));
+                    //newdot.css('color',c);
+                    setTimeout(function() {
+                    let c = $(e).find('svg').css('color');
+                    $(e).parent().find('.bdot').css('color',c);
+                    }, 500);
+                    if(!demetricated) $(e).parent().find('.bdot').hide();
                 }
 
             });
@@ -821,7 +905,29 @@
 
         // video views
         if(newTwitter) {
+
+            ready('div[data-testid = "videoPlayer"], div[data-testid = "previewInterstitial"]', function(e) {
+                let curr_parent = $(e).children()[1];
+                let views_div = $(curr_parent).children()[1];
+
+                if($(views_div).hasClass("demetricator_checked")) return;
+                else $(views_div).addClass("demetricator_checked");
+                cloneAndDemetricateLeadingNum2($(views_div), "views");
+            });
+
+            ready('div[data-testid = "placementTracking"] span:nth-child(1)', function(e) {
+                var txt = ($(e).text()).trim();
+
+                if(txt.includes("views")){
+                    if($(e).hasClass("demetricator_checked")) return;
+                    else $(e).addClass("demetricator_checked");
+                    cloneAndDemetricateLeadingNum2($(e), "views");
+                }                
+            });
+
+
             ready('span[data-testid="viewCount"] span, div[data-testid="viewCount"] span', function(e) {
+                
                 if($(e).hasClass("demetricator_checked")) return;
                 else $(e).addClass("demetricator_checked");
                 cloneAndDemetricateLeadingNum($(e), "views");
@@ -837,18 +943,30 @@
 
             });
         }
-
+        
         if(newTwitter) {
             ready('a[title]', function(e) {
                 let ttxt = $(e).attr('title');
                 if(ttxt.match(/^\d/)) {
                     if(!ttxt.contains("·")) {
-                        //console.log("scrubbing: "+ttxt);
                         $(e).attr('title','');
                     }
                 }
             });
         }
+
+
+        //verified account hidden through global demetricated style because the spans have the exact same class
+
+        ready( 'div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b', function(e){
+            
+            var next_sib = $(e.nextSibling);
+            var verified = next_sib.find('svg');
+
+            if(verified && verified.attr('aria-label') == "Verified account"){
+                e.style = "display: inline !important";
+            }
+        });
 
         // others you follow in hovercards and profile pages
         // I'm removing some originally embedded markup here
@@ -856,7 +974,9 @@
         if(newTwitter) {
             // defunct 3/25
             //ready('a[aria-label="Followers you know"] div span', function(e) {
-            ready('a[aria-label="Followers you know"] span', function(e) {
+            //ready('a[aria-label="Followers you know"] span', function(e) {
+            // 10/30/20 update
+            ready('a[aria-label="Followers you know"] div div:nth-child(2)', function(e) { 
                 if($(e).hasClass("demetricator_checked")) return;
                 else $(e).addClass("demetricator_checked");
 
@@ -1019,11 +1139,13 @@
                 var orig = $(e);
                 var clone = orig.clone();
                 clone.text(dTxt);
+                clone.css("color","white");
                 clone.addClass("demetricated");
                 orig.addClass("notdemetricated");
                 if(demetricated) orig.hide();
                 else clone.hide();
                 clone.insertAfter(orig);
+                
             }
         }
 
@@ -1365,20 +1487,6 @@ function ready(selector, fn) {
     checkSelector(selector, fn);
     return () => removeListener(selector, fn);
 }
-
-
-/* mousetrap v1.6.1 craig.is/killing/mice */
-// from https://raw.githubusercontent.com/ccampbell/mousetrap/master/mousetrap.min.js
-(function(r,v,f){function w(a,b,g){a.addEventListener?a.addEventListener(b,g,!1):a.attachEvent("on"+b,g)}function A(a){if("keypress"==a.type){var b=String.fromCharCode(a.which);a.shiftKey||(b=b.toLowerCase());return b}return p[a.which]?p[a.which]:t[a.which]?t[a.which]:String.fromCharCode(a.which).toLowerCase()}function F(a){var b=[];a.shiftKey&&b.push("shift");a.altKey&&b.push("alt");a.ctrlKey&&b.push("ctrl");a.metaKey&&b.push("meta");return b}function x(a){return"shift"==a||"ctrl"==a||"alt"==a||
-"meta"==a}function B(a,b){var g,c,d,f=[];g=a;"+"===g?g=["+"]:(g=g.replace(/\+{2}/g,"+plus"),g=g.split("+"));for(d=0;d<g.length;++d)c=g[d],C[c]&&(c=C[c]),b&&"keypress"!=b&&D[c]&&(c=D[c],f.push("shift")),x(c)&&f.push(c);g=c;d=b;if(!d){if(!n){n={};for(var q in p)95<q&&112>q||p.hasOwnProperty(q)&&(n[p[q]]=q)}d=n[g]?"keydown":"keypress"}"keypress"==d&&f.length&&(d="keydown");return{key:c,modifiers:f,action:d}}function E(a,b){return null===a||a===v?!1:a===b?!0:E(a.parentNode,b)}function c(a){function b(a){a=
-a||{};var b=!1,l;for(l in n)a[l]?b=!0:n[l]=0;b||(y=!1)}function g(a,b,u,e,c,g){var l,m,k=[],f=u.type;if(!h._callbacks[a])return[];"keyup"==f&&x(a)&&(b=[a]);for(l=0;l<h._callbacks[a].length;++l)if(m=h._callbacks[a][l],(e||!m.seq||n[m.seq]==m.level)&&f==m.action){var d;(d="keypress"==f&&!u.metaKey&&!u.ctrlKey)||(d=m.modifiers,d=b.sort().join(",")===d.sort().join(","));d&&(d=e&&m.seq==e&&m.level==g,(!e&&m.combo==c||d)&&h._callbacks[a].splice(l,1),k.push(m))}return k}function f(a,b,c,e){h.stopCallback(b,
-b.target||b.srcElement,c,e)||!1!==a(b,c)||(b.preventDefault?b.preventDefault():b.returnValue=!1,b.stopPropagation?b.stopPropagation():b.cancelBubble=!0)}function d(a){"number"!==typeof a.which&&(a.which=a.keyCode);var b=A(a);b&&("keyup"==a.type&&z===b?z=!1:h.handleKey(b,F(a),a))}function p(a,c,u,e){function l(c){return function(){y=c;++n[a];clearTimeout(r);r=setTimeout(b,1E3)}}function g(c){f(u,c,a);"keyup"!==e&&(z=A(c));setTimeout(b,10)}for(var d=n[a]=0;d<c.length;++d){var m=d+1===c.length?g:l(e||
-B(c[d+1]).action);q(c[d],m,e,a,d)}}function q(a,b,c,e,d){h._directMap[a+":"+c]=b;a=a.replace(/\s+/g," ");var f=a.split(" ");1<f.length?p(a,f,b,c):(c=B(a,c),h._callbacks[c.key]=h._callbacks[c.key]||[],g(c.key,c.modifiers,{type:c.action},e,a,d),h._callbacks[c.key][e?"unshift":"push"]({callback:b,modifiers:c.modifiers,action:c.action,seq:e,level:d,combo:a}))}var h=this;a=a||v;if(!(h instanceof c))return new c(a);h.target=a;h._callbacks={};h._directMap={};var n={},r,z=!1,t=!1,y=!1;h._handleKey=function(a,
-c,d){var e=g(a,c,d),k;c={};var h=0,l=!1;for(k=0;k<e.length;++k)e[k].seq&&(h=Math.max(h,e[k].level));for(k=0;k<e.length;++k)e[k].seq?e[k].level==h&&(l=!0,c[e[k].seq]=1,f(e[k].callback,d,e[k].combo,e[k].seq)):l||f(e[k].callback,d,e[k].combo);e="keypress"==d.type&&t;d.type!=y||x(a)||e||b(c);t=l&&"keydown"==d.type};h._bindMultiple=function(a,b,c){for(var d=0;d<a.length;++d)q(a[d],b,c)};w(a,"keypress",d);w(a,"keydown",d);w(a,"keyup",d)}if(r){var p={8:"backspace",9:"tab",13:"enter",16:"shift",17:"ctrl",
-18:"alt",20:"capslock",27:"esc",32:"space",33:"pageup",34:"pagedown",35:"end",36:"home",37:"left",38:"up",39:"right",40:"down",45:"ins",46:"del",91:"meta",93:"meta",224:"meta"},t={106:"*",107:"+",109:"-",110:".",111:"/",186:";",187:"=",188:",",189:"-",190:".",191:"/",192:"`",219:"[",220:"\\",221:"]",222:"'"},D={"~":"`","!":"1","@":"2","#":"3",$:"4","%":"5","^":"6","&":"7","*":"8","(":"9",")":"0",_:"-","+":"=",":":";",'"':"'","<":",",">":".","?":"/","|":"\\"},C={option:"alt",command:"meta","return":"enter",
-escape:"esc",plus:"+",mod:/Mac|iPod|iPhone|iPad/.test(navigator.platform)?"meta":"ctrl"},n;for(f=1;20>f;++f)p[111+f]="f"+f;for(f=0;9>=f;++f)p[f+96]=f.toString();c.prototype.bind=function(a,b,c){a=a instanceof Array?a:[a];this._bindMultiple.call(this,a,b,c);return this};c.prototype.unbind=function(a,b){return this.bind.call(this,a,function(){},b)};c.prototype.trigger=function(a,b){if(this._directMap[a+":"+b])this._directMap[a+":"+b]({},a);return this};c.prototype.reset=function(){this._callbacks={};
-this._directMap={};return this};c.prototype.stopCallback=function(a,b){return-1<(" "+b.className+" ").indexOf(" mousetrap ")||E(b,this.target)?!1:"INPUT"==b.tagName||"SELECT"==b.tagName||"TEXTAREA"==b.tagName||b.isContentEditable};c.prototype.handleKey=function(){return this._handleKey.apply(this,arguments)};c.addKeycodes=function(a){for(var b in a)a.hasOwnProperty(b)&&(p[b]=a[b]);n=null};c.init=function(){var a=c(v),b;for(b in a)"_"!==b.charAt(0)&&(c[b]=function(b){return function(){return a[b].apply(a,
-arguments)}}(b))};c.init();r.Mousetrap=c;"undefined"!==typeof module&&module.exports&&(module.exports=c);"function"===typeof define&&define.amd&&define(function(){return c})}})("undefined"!==typeof window?window:null,"undefined"!==typeof window?document:null);
 
 // run main once loaded
 $(document).ready(function() { main(); });
