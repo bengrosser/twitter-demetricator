@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.2.0
+// @version     1.3.0
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
@@ -89,8 +89,9 @@
     var KEY_CONTROL = false;            // keyboard toggle on ctrl+d
     var demetricated = true;            // launch in demetricated state
     var demetricating = false;            // launch in demetricated state
+    var hidetimes;
     var curURL = window.location.href;  
-    var version = "1.2.0";
+    var version = "1.3.0";
 
     // variables to hold language-specific text for the new tweets
     // bar and the new notifications bar. this way I can reconstruct
@@ -123,6 +124,20 @@
 
     var inverseTweetDeckVideosDemetricatedStyle = '#playerContainer .view-counts-display { opacity:1 !important; }'; 
 
+    function toggleAgeMetrics() {
+        // turn off age metric hiding
+        if(hidetimes) {
+            $('.notdemetricated-time').show();
+            hidetimes = !hidetimes;
+        }
+
+        else {
+            if(demetricated) {
+                $('.notdemetricated-time').fadeOut();
+            }
+            hidetimes = !hidetimes;
+        }
+    }
 
     function toggleDemetricator() {
 
@@ -289,8 +304,9 @@
             $('div[role="menu"] div[aria-live="polite"]').css('color','rgb(255,255,255)');
 
             // catch everything else tagged for hide/show
-            $('.notdemetricated').show();
+            $('.notdemetricated, .notdemetricated-time').show();
             $('.demetricated').hide();
+
 
             // tooltips re-present (hidden) metrics, so re-enable
             $('.demetricate-tooltip').
@@ -364,6 +380,9 @@
 
             // catch everything else tagged for hide/show
             $('.notdemetricated').hide();
+            if(hidetimes) {
+                $('.notdemetricated-time').hide();
+            }
             $('.demetricated').fadeIn(); // fades in the dots
 
             // tooltips re-present (hidden) metrics, so just disable
@@ -377,21 +396,46 @@
             demetricated = true;
             demetricating = false;
         }
-        console.log("demetricated = "+demetricated);
+        //console.log("demetricated = "+demetricated);
     }
 
     function main() {
 
         if(IS_CHROME_EXTENSION) {
             addGlobalStyle(demetricatedStyle,"demetricator");
+
             // listen for messages from the extension control popup, 
             // adjust as directed
             chrome.runtime.onMessage.addListener(
               function(request, sender, sendResponse) {
                 //console.log("got a trigger from chrome listener");
-                if(request.on) { toggleDemetricator();  } // hide
-                else { toggleDemetricator(); } // show
+                //if(request.on || !request.on) { toggleDemetricator();  } // hide
+                //else if(!request.on) { toggleDemetricator(); } // show
+                if(request.on && !demetricated || !request.on && demetricated) 
+                  toggleDemetricator();
+
+                if(request.hidetimes && !hidetimes || !request.hidetimes && hidetimes) 
+                  toggleAgeMetrics();
+
+                
+                //console.log("got a msg from popup: "+JSON.stringify(request));
                 sendResponse({farewell: "msg rcvd"});
+                //Promise.resolve("").then(result => sendResponse({farewell: "msg rcvd"}));
+                if(chrome.runtime.lastError) {
+                    //console.log("content script: got runtime.lastError but dont' care");
+                } 
+
+                /*
+                  else {
+                    console.log("content script: no runtime.lastError!");
+                }
+                */
+
+                return true;
+                /*
+                let result = {farewell: "msg rcvd"};
+                return Promise.resolve(sentResponse(result));
+                */
             });
 
             // on first load, grab all saved data and respond
@@ -407,6 +451,21 @@
                     } else {
                         if(demetricated) toggleDemetricator();
                         demetricated = false;
+                    }
+                }
+            });
+
+            chrome.storage.local.get("hidetimes",function(data) {
+                if(chrome.runtime.lastError) {
+                    chrome.storage.local.set({"hidetimes":true}, function() {} );
+                    hidetimes = true;
+                } else {
+                    if(data.hidetimes || data.hidetimes == undefined) {
+                        //if(!hidetimes) toggleAgeMetrics();
+                        hidetimes = true;
+                    } else {
+                        //if(hidetimes) toggleAgeMetrics();
+                        hidetimes = false;
                     }
                 }
             });
@@ -545,9 +604,9 @@
         // Jul 25 2019
         ready(
             'div[aria-label="Timeline: Notifications"] article span span span',
-            function(e) { demetricateMiddleMetricPopup(e); 
+            function(e) { 
+                demetricateMiddleMetricPopup(e); 
         });
-
 
         // Soandso and 43 others follow on user profile and some popups I think 
         ready('div[data-testid="UserCell"] div.r-16y2uox span[dir="ltr"] span', 
@@ -566,6 +625,9 @@
         function demetricateMiddleMetricPopup(e) {
             var txt = $(e).text();
             var htm = $(e).html();
+
+            //console.log("dmmp txt: "+txt);
+            //console.log("dmmp htm: "+htm);
             
             if(txt != undefined && htm != undefined) {
 
@@ -580,7 +642,6 @@
                 }
 
                 if(parsed) {
-                    
                     var newhtml = parsed[1] + 
                         " <span class='notdemetricated' style='display:none;'>"+
                         parsed[2] + " </span>"+ parsed[3];
@@ -656,10 +717,15 @@
                 return;
 
             } else {
-                hideTarget.addClass("notdemetricated");
-                if(demetricated) { 
+                //hideTarget.addClass("notdemetricated");
+                hideTarget.addClass("notdemetricated-time");
+                if(hidetimes && demetricated) { 
                     hideTarget.hide();
-                    hideTarget.parent().parent().parent().find('div[aria-hidden="true"]').addClass("notdemetricated").hide();
+                    hideTarget.
+                        parent().parent().parent().
+                        find('div[aria-hidden="true"]').
+                        addClass("notdemetricated-time").
+                        hide();
                 }
             }
 
@@ -1057,6 +1123,11 @@
             cloneAndDemetricateLeadingNum(e, "others");
         });
 
+        // search results meta e.g. '4 Tweets in the last hour'
+        ready('form[role="search"] li[role="listitem"] span[dir="ltr"] span', function(e) {
+            cloneAndDemetricateLeadingNum(e, "Tweets");
+        });
+
 
         // ?? CONFIRM 1.0
         // notifications list?
@@ -1224,16 +1295,40 @@
         }
 
 
+        // I THINK this observer is done, no longer working...
 
         // monitor a <link> tag in <head> to track page location changes
         // (couldn't find another way)
         var linkNode = document.querySelector('link[rel="canonical"]');
         var linkObserver = new MutationObserver(function(mutations) {
+            
+            // update curURL
             curURL = window.location.href;
+
+            // if not on notifications page, stop watching for changes there
+            /*
+            if(!curURL.contains("notifications")) {
+                notificationsWatcher.disconnect(); 
+                console.log("disconnecting notificationsWatcher from detect");
+            } 
+            */
         });
 
-        if(linkNode != undefined) 
-            linkObserver.observe(linkNode, { attributes: true })
+//        ready('link[rel="canonical"]', function(e) {
+//            // (re)set curURL
+//            curURL = window.location.href;
+//
+//            // just in case it's running, disconnect notificationsWatcher
+//            // so they don't accumulate over time
+//           if(!curURL.contains("notifications")) {
+//               console.log("not notifications, so disconnecting notwatcher");
+//                notificationsWatcher.disconnect(); 
+//            } else {
+//                console.log("notifications, so NOT disconnecting notwatcher");
+//            }
+//
+//            linkObserver.observe(e, { attributes: true })
+//        });
 
 
         // modal headers --- popups when someone clicks on "Likes"
@@ -1265,7 +1360,7 @@
                     });
 
                     if(mhn != undefined) mho.observe(mhn, { childList:true });
-                };
+                } 
             });
         });
 
@@ -1274,6 +1369,35 @@
                 attributeFilter: ['class'] 
         });
 
+        // when on the notifications page and when an existing notification needs
+        // an update, twitter only changes the characterData, meaning my tracking
+        // of the relevant nodes never fires. so, when on a notifications page,
+        // this observer watches for charData changes to any child nodes, and 
+        // uses those to trigger a general search for any uncaught metrics. mostly
+        // it won't find any as it's only the just updated node that isn't already
+        // demetricated --- so shouldn't be much of a load. i also disconnect this
+        // observer when the URL changes away from /notifications
+        let notificationsWatcher = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if(mutation.type == "characterData") {
+                    if($(mutation.target).hasClass('notdemetricated')) return;
+
+                    $('div[aria-label="Timeline: Notifications"] article span span span').each(
+                        function(index, value) {
+                            if($(this).hasClass('notdemetricated')) return;  
+                            else demetricateMiddleMetricPopup($(this));
+                        }
+                    );
+                }
+            });
+        });
+
+        // when we see a notifications timeline, launch an observer to watch it
+        // need to disconnect this somewhere??
+        ready('div[aria-label="Timeline: Notifications"]', function(e) {
+            let n = $(e)[0];
+            notificationsWatcher.observe(n, { subtree: true, characterData:true });
+        });
 
     } // main
 
@@ -1480,6 +1604,7 @@ function ready(selector, fn) {
         observer = new MutationObserver(checkListeners);
         observer.observe(doc.documentElement, {
             childList: true,
+            characterData: true,
             subtree: true
         });
     }

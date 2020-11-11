@@ -13,6 +13,7 @@ $(document).ready(function() {
       $('.fbdlnk').click(function() { chrome.tabs.create({url: fbdURL}); });
     
       var onstate;
+      let hidetimes;
 
       // restore any saved options
       restoreOptions();
@@ -23,11 +24,16 @@ $(document).ready(function() {
           else onstate = false;
 
           chrome.storage.local.set({"on":onstate}, function() {
-            var msg;
-            if(onstate) msg = "ON";
-            else msg = "OFF";
-
             sendState();
+          });
+      });
+
+      $('.timeoptcb').change(function() {
+          if(this.checked) hidetimes = true;
+          else hidetimes = false;
+
+          chrome.storage.local.set({"hidetimes":hidetimes}, function() {
+              sendState();
           });
       });
 
@@ -35,20 +41,32 @@ $(document).ready(function() {
       function sendState() {
 
         chrome.tabs.query({ url: "*://*.twitter.com/*" }, function(tabs) {
-                for(var i = 0; i < tabs.length; i++) {
-                    chrome.tabs.sendMessage(
-                        tabs[i].id, 
-                        { on: onstate }, 
-                        function(r) {
-                            if(r != undefined) {
-                              //console.log('sent message to a tab '+ 'and got msg back: '+r.farewell);
-                            } else {
-                              //console.log("callback r undefined");
-                            }
+
+            for(let tab of tabs) {
+                chrome.tabs.sendMessage(
+                    tab.id,
+                    { on: onstate, hidetimes: hidetimes }, 
+                    function(r) {
+                        if(chrome.runtime.lastError) {
+                         //   console.log("opt: got a lasterror");
+                        } 
+
+                        /*
+                        else {
+                            console.log("opt: NO lasterror");
                         }
-                    );
-                }
-            });
+                        */
+
+                        if(r != undefined && r!= null) {
+                            console.log('opt got a msg: '+r.farewell);
+                        }
+
+                        return true;
+                    }
+                );
+            }
+
+        });
       }
 
 
@@ -62,5 +80,15 @@ $(document).ready(function() {
               onstate = data.on;
           }
       });
+
+      chrome.storage.local.get("hidetimes", function(data) {
+          if(chrome.runtime.lastError) {
+              hidetimes = true;
+          } else {
+              $('.timeoptcb').prop('checked',data.hidetimes);
+              hidetimes = data.hidetimes;
+          }
+      });
+      
     }
 });

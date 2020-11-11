@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.2.0
+// @version     1.3.0
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
