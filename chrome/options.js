@@ -14,6 +14,7 @@ $(document).ready(function() {
     
       var onstate;
       let hidetimes;
+      let hidedots;
 
       // restore any saved options
       restoreOptions();
@@ -37,6 +38,15 @@ $(document).ready(function() {
           });
       });
 
+      $('.dotoptcb').change(function() {
+          if(this.checked) hidedots = true;
+          else hidedots = false;
+
+          chrome.storage.local.set({"hidedots":hidedots}, function() {
+              sendState();
+          });
+      });
+
       // sends full state info to all loaded FB tabs on any change
       function sendState() {
 
@@ -45,7 +55,7 @@ $(document).ready(function() {
             for(let tab of tabs) {
                 chrome.tabs.sendMessage(
                     tab.id,
-                    { on: onstate, hidetimes: hidetimes }, 
+                    { on: onstate, hidetimes: hidetimes, hidedots: hidedots }, 
                     function(r) {
                         if(chrome.runtime.lastError) {
                          //   console.log("opt: got a lasterror");
@@ -87,6 +97,15 @@ $(document).ready(function() {
           } else {
               $('.timeoptcb').prop('checked',data.hidetimes);
               hidetimes = data.hidetimes;
+          }
+      });
+
+      chrome.storage.local.get("hidedots", function(data) {
+          if(chrome.runtime.lastError) {
+              hidedots = false;
+          } else {
+              $('.dotoptcb').prop('checked',data.hidedots);
+              hidedots = data.hidedots;
           }
       });
       

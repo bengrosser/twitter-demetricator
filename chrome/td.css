@@ -45,9 +45,12 @@ div[data-testid="unretweet"] div span, // unretweet tweet metrics
 a.r-jwli3a[aria-haspopup] span div div, // tweet detail page like/retweet/reply
 div.r-7o8qx1 div.r-axxi2z, // like metrics on individual tweet pages (e.g. /bengrosser/status/0982734...)
 div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b, // profile and popout following/follower metrics 4/1
-span span.r-jwli3a // following/followers on profile 3/25
+span span.r-jwli3a, // following/followers on profile 3/25
+div[dir="auto"] span.r-jwli3a // following/followers on message user header
 {
+    /*
     display:none;
+    */
     opacity:0;
 }
 

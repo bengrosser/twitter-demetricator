@@ -1,6 +1,6 @@
 {
     "name": "Twitter Demetricator",
-    "version": "1.3.0",
+    "version": "1.3.5",
     "description": "Hides all the metrics on Twitter.",
     "homepage_url": "http://bengrosser.com/projects/twitter-demetricator/",
     "manifest_version": 2,
@@ -17,7 +17,6 @@
         "default_popup": "options.html"
     },
     "permissions": [
-        "activeTab",
         "tabs",
         "storage"
     ],
