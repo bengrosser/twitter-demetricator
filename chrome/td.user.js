@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.3.5
+// @version     1.4.0
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
@@ -92,7 +92,7 @@
     var hidetimes;
     var hidedots;
     var curURL = window.location.href;  
-    var version = "1.3.5";
+    var version = "1.4.0";
 
     // variables to hold language-specific text for the new tweets
     // bar and the new notifications bar. this way I can reconstruct
@@ -141,23 +141,16 @@
     }
 
     function toggleDots() {
-        console.log('in toggledots');
-        console.log('hidedots = '+hidedots);
-        console.log('so will flip it');
 
         // turn off dot hiding
         if(hidedots) {
-            console.log('showing dots');
             if(demetricated) $('.bdot').fadeIn("fast");
             hidedots= !hidedots; // hidedots now = false
         }
 
         // turn them on (if demetricated)
         else {
-            if(demetricated) {
-                console.log('demetrication on, so hiding dots');
-                $('.bdot').fadeOut("fast");
-            }
+            if(demetricated) { $('.bdot').fadeOut("fast"); }
             hidedots = !hidedots; // hidedots now = true
         }
     }
@@ -353,10 +346,7 @@
                         "tweetDeckDemetricator");
             }
 
-            //$('.bdot').css('opacity','0.5');
-
             // dots option
-            if(hidedots) console.log("HIDING ON TOGGLE ON");
             if(hidedots) $('.bdot').hide();
             else $('.bdot').fadeIn("fast");
 
@@ -425,7 +415,6 @@
             demetricated = true;
             demetricating = false;
         }
-        //console.log("demetricated = "+demetricated);
     }
 
     function main() {
@@ -437,30 +426,25 @@
             // adjust as directed
             chrome.runtime.onMessage.addListener(
               function(request, sender, sendResponse) {
-                console.log("got a trigger from chrome listener");
-                  console.log(request);
+                //console.log("got a trigger from chrome listener");
+                //console.log(request);
                 //if(request.on || !request.on) { toggleDemetricator();  } // hide
                 //else if(!request.on) { toggleDemetricator(); } // show
                   
                 if(request.on != undefined) {
                     if(request.on && !demetricated || !request.on && demetricated) {
-                        console.log('calling toggleDemetricator()');
                         toggleDemetricator();
                     }
                 }
 
                 if(request.hidetimes != undefined) {
                     if(request.hidetimes && !hidetimes || !request.hidetimes && hidetimes) {
-                        console.log('calling toggleAgeMetrics()');
                         toggleAgeMetrics();
                     }
                 }
 
                 if(request.hidedots != undefined) {
-                    if(request.hidedots && !hidedots || !request.hidedots && hidedots) 
-                    {
-                        console.log('in hidedots');
-                        console.log('calling toggleDots()');
+                    if(request.hidedots && !hidedots || !request.hidedots && hidedots) {
                         toggleDots();
                     }
                 }
@@ -508,10 +492,8 @@
                     hidetimes = true;
                 } else {
                     if(data.hidetimes || data.hidetimes == undefined) {
-                        //if(!hidetimes) toggleAgeMetrics();
                         hidetimes = true;
                     } else {
-                        //if(hidetimes) toggleAgeMetrics();
                         hidetimes = false;
                     }
                 }
@@ -521,15 +503,10 @@
                 if(chrome.runtime.lastError) {
                     chrome.storage.local.set({"hidedots":false}, function() {} );
                     hidedots = false;
-                    console.log("in get, hidedots was lasterror, setting false");
                 } else {
                     if(data.hidedots) {
-                        console.log("in get, hidedots true, setting true");
-                        //if(!hidetimes) toggleAgeMetrics();
                         hidedots = true;
                     } else {
-                        console.log("in get, hidedots false, setting false");
-                        //if(hidetimes) toggleAgeMetrics();
                         hidedots = false;
                     }
                 }
@@ -894,7 +871,7 @@
             //ready('div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"]', function(e) {
             //
             let mydot = 
-                "<div class='bdot demetricated' style='font-size:120%;font-weight:bold;position:absolute;top:-12px;left:20px;opacity:0.5;'>.</div>";
+                "<div class='bdot demetricated' style='font-size:120%;font-weight:bold;position:absolute;top:-12px;left:20px;opacity:0.6;'>.</div>";
             
             // new 2/25/19
             ready('div[data-testid="tweet"]', function(e) {
@@ -920,9 +897,11 @@
                 else dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-24px 24px 0 2px;display:none;">.</sup>';
                 */
 
-                if(demetricated) dot = '<div class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;position:absolute;top:-16px;left:18px;">.</div>';
+                /*
+                if(demetricated) dot = '<div class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.6;position:absolute;top:-16px;left:18px;">.</div>';
                 else dot = '<div class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;position:absolute;top:-16px;left:18px;display:none;">.</div>';
 
+*/
 
                 // for every button, check and add dot if needed
                 for(var i = 0; i < buttons.length; i++) {
@@ -1011,7 +990,7 @@
                     let c = $(e).find('svg').css('color');
                     $(e).parent().find('.bdot').css('color',c);
                     }, 500);
-                    if(!demetricated) $(e).parent().find('.bdot').hide();
+                    if(!demetricated || hidedots) $(e).parent().find('.bdot').hide();
                 }
 
             });

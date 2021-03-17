@@ -1,6 +1,6 @@
-var tdURL = 'http://bengrosser.com/projects/twitter-demetricator/';
-var bgURL = 'http://bengrosser.com/';
-var fbdURL = 'http://bengrosser.com/projects/facebook-demetricator';
+var tdURL = 'https://bengrosser.com/projects/twitter-demetricator/';
+var bgURL = 'https://bengrosser.com/';
+var fbdURL = 'https://bengrosser.com/projects/facebook-demetricator';
 
 $(document).ready(function() {
 
@@ -68,7 +68,7 @@ $(document).ready(function() {
                         */
 
                         if(r != undefined && r!= null) {
-                            console.log('opt got a msg: '+r.farewell);
+                            //console.log('opt got a msg: '+r.farewell);
                         }
 
                         return true;

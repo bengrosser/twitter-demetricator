@@ -1,6 +1,6 @@
 // // ==UserScript==
 // @name        Twitter Demetricator
-// @version     1.3.0
+// @version     1.4.0
 // @namespace   twitterdemetricator
 // @description Hides all the metrics on Twitter
 // @author      Ben Grosser
@@ -90,8 +90,9 @@
     var demetricated = true;            // launch in demetricated state
     var demetricating = false;            // launch in demetricated state
     var hidetimes;
+    var hidedots;
     var curURL = window.location.href;  
-    var version = "1.3.0";
+    var version = "1.4.0";
 
     // variables to hold language-specific text for the new tweets
     // bar and the new notifications bar. this way I can reconstruct
@@ -109,11 +110,11 @@
     // a few metrics are easy, hidden via CSS. this style is mirrored in 
     // twitterdemetricator.css in order to inject *before* DOM renders on
     // first load, so need to maintain state in these vars plus that file
-    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b , span span.r-jwli3a { opacity:0; } div[data-testid="unretweet"] div span, div[data-testid="unlike"] div span, a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08xa, a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08x:not(.r-h9hxbl), div.css-1dbjc4n.r-1w6e6rj a[dir="auto"] span:nth-child(1) span, div.css-1dbjc4n.r-ku1wi2 a[dir="auto"] span:nth-child(1) span { /*display:none;*/opacity:0; }'; 
+    var demetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:0 !important; } .count-wrap { display:hide !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b , span span.r-jwli3a, div[dir="auto"] span.r-jwli3a { opacity:0;/*display:none;*/ } div[data-testid="unretweet"] div span, div[data-testid="unlike"] div span, a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08xa, a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08x:not(.r-h9hxbl), div.css-1dbjc4n.r-1w6e6rj a[dir="auto"] span:nth-child(1) span, div.css-1dbjc4n.r-ku1wi2 a[dir="auto"] span:nth-child(1) span { /*display:none;*/opacity:0; }'; 
 
 
 
-    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup="false"] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b, span span.r-jwli3a { display:inline !important;opacity:1; }  div[data-testid="unretweet"] div span, div[data-testid="unlike"] div span, a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08xa, a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08x:not(.r-h9hxbl), div.css-1dbjc4n.r-1w6e6rj a[dir="auto"] span:nth-child(1) span, div.css-1dbjc4n.r-ku1wi2 a[dir="auto"] span:nth-child(1) span { display:inline !important; } '; 
+    var inverseDemetricatedStyle = '.ProfileCardStats-statValue, .ProfileTweet-actionCountForPresentation, .ProfileNav-value, a[data-tweet-stat-count] strong, .ep-MetricAnimation, .ep-MetricValue, .MomentCapsuleLikesFacepile-countNum, .stats li a strong { opacity:1 !important; } .count-wrap { display:unset !important; } div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"] span, div[data-testid="like"] div span, div[data-testid="reply"] div span, div[data-testid="retweet"] div span, div.r-z2knda.r-1wbh5a2 a > span:first-child, a.r-jwli3a[aria-haspopup="false"] span div div, div.r-7o8qx1 div.r-axxi2z, div.css-1dbjc4n a.css-4rbku5 span.r-vw2c0b, span span.r-jwli3a, div[dir="auto"] span.r-jwli3a { display:inline !important;opacity:1; }  div[data-testid="unretweet"] div span, div[data-testid="unlike"] div span, a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08xa, a[dir="auto"] div.css-1dbjc4n.r-xoduu5.r-1udh08x:not(.r-h9hxbl), div.css-1dbjc4n.r-1w6e6rj a[dir="auto"] span:nth-child(1) span, div.css-1dbjc4n.r-ku1wi2 a[dir="auto"] span:nth-child(1) span { display:inline !important; } '; 
 
 
     var tweetDeckDemetricatedStyle = 'span.js-ticker-value, .prf-stats li a strong, .like-count, .retweet-count, .reply-count { opacity:0 !important; }';
@@ -127,15 +128,30 @@
     function toggleAgeMetrics() {
         // turn off age metric hiding
         if(hidetimes) {
-            $('.notdemetricated-time').show();
+            $('.notdemetricated-time').fadeIn("fast");
             hidetimes = !hidetimes;
         }
 
         else {
             if(demetricated) {
-                $('.notdemetricated-time').fadeOut();
+                $('.notdemetricated-time').fadeOut("fast");
             }
             hidetimes = !hidetimes;
+        }
+    }
+
+    function toggleDots() {
+
+        // turn off dot hiding
+        if(hidedots) {
+            if(demetricated) $('.bdot').fadeIn("fast");
+            hidedots= !hidedots; // hidedots now = false
+        }
+
+        // turn them on (if demetricated)
+        else {
+            if(demetricated) { $('.bdot').fadeOut("fast"); }
+            hidedots = !hidedots; // hidedots now = true
         }
     }
 
@@ -161,8 +177,6 @@
                 addGlobalStyle(inverseTweetDeckVideosDemetricatedStyle,
                         "inverseTweetDeckVideosDemetricator");
             }
-
-            $('.bdot').css('opacity','0');
 
             // tab title handled differently on new twitter
             if(newTwitter) {
@@ -303,10 +317,10 @@
             $('nav[aria-label="Primary"] div[aria-live="polite"]').css('color','#fff');
             $('div[role="menu"] div[aria-live="polite"]').css('color','rgb(255,255,255)');
 
+
             // catch everything else tagged for hide/show
             $('.notdemetricated, .notdemetricated-time').show();
             $('.demetricated').hide();
-
 
             // tooltips re-present (hidden) metrics, so re-enable
             $('.demetricate-tooltip').
@@ -317,7 +331,7 @@
             demetricated = false;
         } 
         
-        // show the metrics :(
+        // hide the metrics!
         else {
             demetricating = true;
             // remove inverse injected style and (re)install demetricated style
@@ -332,7 +346,9 @@
                         "tweetDeckDemetricator");
             }
 
-            $('.bdot').css('opacity','0.5');
+            // dots option
+            if(hidedots) $('.bdot').hide();
+            else $('.bdot').fadeIn("fast");
 
             if(curURL.contains("i/videos")) {
                 $('style#inverseTweetDeckVideosDemetricator').remove();
@@ -380,10 +396,13 @@
 
             // catch everything else tagged for hide/show
             $('.notdemetricated').hide();
+
             if(hidetimes) {
                 $('.notdemetricated-time').hide();
             }
-            $('.demetricated').fadeIn(); // fades in the dots
+
+            if(!hidedots) $('.bdot').fadeIn("fast");
+            $('.demetricated:not(".bdot")').show(); 
 
             // tooltips re-present (hidden) metrics, so just disable
             // them now that they show nothing (should demetricate
@@ -396,7 +415,6 @@
             demetricated = true;
             demetricating = false;
         }
-        //console.log("demetricated = "+demetricated);
     }
 
     function main() {
@@ -409,14 +427,27 @@
             chrome.runtime.onMessage.addListener(
               function(request, sender, sendResponse) {
                 //console.log("got a trigger from chrome listener");
+                //console.log(request);
                 //if(request.on || !request.on) { toggleDemetricator();  } // hide
                 //else if(!request.on) { toggleDemetricator(); } // show
-                if(request.on && !demetricated || !request.on && demetricated) 
-                  toggleDemetricator();
+                  
+                if(request.on != undefined) {
+                    if(request.on && !demetricated || !request.on && demetricated) {
+                        toggleDemetricator();
+                    }
+                }
 
-                if(request.hidetimes && !hidetimes || !request.hidetimes && hidetimes) 
-                  toggleAgeMetrics();
+                if(request.hidetimes != undefined) {
+                    if(request.hidetimes && !hidetimes || !request.hidetimes && hidetimes) {
+                        toggleAgeMetrics();
+                    }
+                }
 
+                if(request.hidedots != undefined) {
+                    if(request.hidedots && !hidedots || !request.hidedots && hidedots) {
+                        toggleDots();
+                    }
+                }
                 
                 //console.log("got a msg from popup: "+JSON.stringify(request));
                 sendResponse({farewell: "msg rcvd"});
@@ -461,14 +492,26 @@
                     hidetimes = true;
                 } else {
                     if(data.hidetimes || data.hidetimes == undefined) {
-                        //if(!hidetimes) toggleAgeMetrics();
                         hidetimes = true;
                     } else {
-                        //if(hidetimes) toggleAgeMetrics();
                         hidetimes = false;
                     }
                 }
             });
+
+            chrome.storage.local.get("hidedots",function(data) {
+                if(chrome.runtime.lastError) {
+                    chrome.storage.local.set({"hidedots":false}, function() {} );
+                    hidedots = false;
+                } else {
+                    if(data.hidedots) {
+                        hidedots = true;
+                    } else {
+                        hidedots = false;
+                    }
+                }
+            });
+
         }
 
         // inject styles manually for non-Chrome
@@ -745,7 +788,8 @@
         if(newTwitter) {
             //ready('div[aria-label="Timeline: Trending now"] div div div div div span span, div[aria-label="Timeline: Explore"] div div div div div span span',function(e) {
             ready('div[aria-label="Timeline: Trending now"] div div div div div span, div[aria-label="Timeline: Explore"] div div div div div span',function(e) {
-                cloneAndDemetricateLeadingNum(e, "Tweets");
+                if($(e).find('> svg').length) return; // ignore elements that wrap svgs
+                else cloneAndDemetricateLeadingNum(e, "Tweets");
             });
 
             ready('div[aria-label="Timeline: Trends"] div div div div div span span',function(e) {
@@ -798,8 +842,8 @@
 
                 var dot;
 
-                if(demetricated) dot = '<sup class="button_dot demetricated" style="top:-10px;font-size:120%;font-weight:bold;font-family:serif;opacity:0.5">.</sup>';
-                else dot = '<sup class="button_dot demetricated" style="top:-10px;font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;display:none;">.</sup>';
+                if(demetricated) dot = '<sup class="button_dot demetricated" style="top:-12px;font-size:120%;font-weight:bold;font-family:serif;opacity:0.5">.</sup>';
+                else dot = '<sup class="button_dot demetricated" style="top:-12px;font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;display:none;">.</sup>';
 
                 // for every button, check and add dot if needed
                 for(var i = 0; i < buttons.length; i++) {
@@ -827,7 +871,7 @@
             //ready('div:not(.ProfileTweet-actionList)[aria-label="Tweet actions"]', function(e) {
             //
             let mydot = 
-                "<div class='bdot demetricated' style='font-size:120%;font-weight:bold;position:absolute;top:-12px;left:20px;opacity:0.5;'>.</div>";
+                "<div class='bdot demetricated' style='font-size:120%;font-weight:bold;position:absolute;top:-12px;left:20px;opacity:0.6;'>.</div>";
             
             // new 2/25/19
             ready('div[data-testid="tweet"]', function(e) {
@@ -853,9 +897,11 @@
                 else dot = '<sup class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;margin:-24px 24px 0 2px;display:none;">.</sup>';
                 */
 
-                if(demetricated) dot = '<div class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;position:absolute;top:-16px;left:18px;">.</div>';
+                /*
+                if(demetricated) dot = '<div class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.6;position:absolute;top:-16px;left:18px;">.</div>';
                 else dot = '<div class="button_dot demetricated" style="font-size:120%;font-weight:bold;font-family:serif;opacity:0.5;position:absolute;top:-16px;left:18px;display:none;">.</div>';
 
+*/
 
                 // for every button, check and add dot if needed
                 for(var i = 0; i < buttons.length; i++) {
@@ -879,11 +925,18 @@
                             b.parent().find('.bdot').css('color',c);
                         }, 500);
 
-                        if(!demetricated) $(buttons[i]).parent().find('.bdot').hide();
+                        if(!demetricated || hidedots) $(buttons[i]).parent().find('.bdot').hide();
                         
                       }
                    } 
-                 }
+                }
+
+                //$('.saveToPocketButton').css('height','unset');
+                //$('.list-view .saveToPocketButton').css('margin-top','-18px');
+
+
+
+
             });
 
             // only for when someone unlikes or unretweets so we can turn dot color back off
@@ -937,7 +990,7 @@
                     let c = $(e).find('svg').css('color');
                     $(e).parent().find('.bdot').css('color',c);
                     }, 500);
-                    if(!demetricated) $(e).parent().find('.bdot').hide();
+                    if(!demetricated || hidedots) $(e).parent().find('.bdot').hide();
                 }
 
             });

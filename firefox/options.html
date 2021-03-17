@@ -126,11 +126,11 @@
 
         #togglemsg { color:red;display:none; }
 
-        .timeoptcb {
-				/*
+        /*
+        .timeoptcb, .dotoptcb {
           filter: hue-rotate(223deg) saturate(0.5) brightness(1.4); 
-					*/
         }
+        */
 
     </style>
     
@@ -151,10 +151,16 @@
     </div>
     <div class="clear"></div>
     <h3>Options</h3>
-    <div class="timeopt" style="margin-bottom:20px;">
+    <div class="timeopt" style="margin-bottom:0px;">
       <input class="timeoptcb" type="checkbox" name="timeopt" checked>
       <label for="timeopt" style="color:#bbb;">
         Hide age metrics (e.g., 12s, 9m, 2h)?
+      </label>
+    </div>
+    <div class="timeopt" style="margin-bottom:20px;">
+      <input class="dotoptcb" type="checkbox" name="dotopt" >
+      <label for="dotopt" style="color:#bbb;">
+        Hide dot indicators showing > 0 metrics? 
       </label>
     </div>
     <div class="clear"></div>
